@@ -14,8 +14,6 @@ Gem::Specification.new do |spec|
   spec.summary          = 'Rails template generator.'
   spec.version          = Templaty::VERSION
 
-  spec.add_dependency 'activesupport', '>= 4.1'
-
   spec.add_development_dependency 'codecov'
   spec.add_development_dependency 'pry-byebug'
   spec.add_development_dependency 'rspec-rails'
