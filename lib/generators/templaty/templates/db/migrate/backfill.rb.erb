@@ -1,0 +1,13 @@
+# frozen_string_literal: true
+
+class Backfill<%= options[:column].classify %>To<%= options[:table].classify.pluralize %> < ActiveRecord::Migration[<%= options[:rails_version] %>]
+  disable_ddl_transaction!
+
+  def up
+    <%= options[:table].classify %>.unscoped.in_batches do |criteria|
+      criteria.update_all(<%= options[:column] %>: <%= options[:default] %>) # rubocop:disable Rails/SkipsModelValidations
+
+      sleep(0.01) # throttle
+    end
+  end
+end

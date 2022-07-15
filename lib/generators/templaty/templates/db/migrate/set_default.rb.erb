@@ -1,0 +1,12 @@
+# frozen_string_literal: true
+
+# In Postgres 11+, MySQL 8.0.12+, and MariaDB 10.3.2+, a new column with default no longer requires a table rewrite and is safe.
+class SetColumn<%= options[:column].classify %>WithDefault < ActiveRecord::Migration[<%= options[:rails_version] %>]
+  def change
+    <%- if options[:type] == 'string' -%>
+    change_column_default :<%= options[:table] %>, :<%= options[:column] %>, "<%= options[:default] %>"
+    <%- else -%>
+    change_column_default :<%= options[:table] %>, :<%= options[:column] %>, <%= options[:default] %>
+    <%- end -%>
+  end
+end
