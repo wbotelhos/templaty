@@ -23,7 +23,12 @@ module Templaty
     class_option :photos, required: false, type: :boolean, default: false, desc: 'Has photos? (true|false)'
     class_option :rails_version, required: false, type: :string, default: '6.1', desc: 'Rails version'
     class_option :show_route, required: false, type: :boolean, default: false, desc: 'Add show route? (true|false)'
-    class_option :validates_numericality, required: false, type: :string, default: nil, desc: 'numericality validation (amount_cents:0:100_00)'
+
+    class_option :validates_numericality,
+      required: false,
+      type: :string,
+      default: nil,
+      desc: 'numericality validation (amount_cents:0:100_00)'
 
     def controller
       from = 'crud/app/controllers/system/table_controller.rb.erb'
@@ -160,7 +165,11 @@ module Templaty
         spec/models/model/list_spec.rb
       ].each do |path|
         from = "crud/#{path}.erb"
-        to   = path.sub('namespace', options[:namespace]).sub('table', options[:table])
+
+        to = path
+             .sub('model', options[:table].singularize)
+             .sub('namespace', options[:namespace])
+             .sub('table', options[:table])
 
         template(from, to)
       end
