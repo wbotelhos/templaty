@@ -3,3 +3,4 @@
 ### News
 
 - Add `add_column` migration template;
+- Add CRUD template;
