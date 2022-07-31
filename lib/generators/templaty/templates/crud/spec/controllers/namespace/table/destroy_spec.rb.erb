@@ -3,7 +3,6 @@
 
 require 'support/factory_bot'
 require 'support/shared/logged'
-require '<%= options[:namespace] %>/<%= options[:table] %>_controller'
 
 RSpec.describe <%= options[:namespace].classify %>::<%= options[:table].classify.pluralize %>Controller, '#destroy' do
   context 'when unlogged' do

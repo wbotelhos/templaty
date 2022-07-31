@@ -43,7 +43,7 @@ RSpec.describe <%= options[:namespace].classify %>::<%= options[:table].classify
       it 'flashes' do
         post :create, params: { <%= options[:table].singularize %>: parameters }
 
-        expect(flash[:info]).to eq '<%= options[:name_one].capitalize %> <%= Templaty::Helper.i18n_created(options) %> com sucesso.'
+        expect(flash[:info]).to eq('<%= options[:name_one].capitalize %> <%= Templaty::Helper.i18n_created(options) %> com sucesso.')
       end
 
       it 'creates the record' do

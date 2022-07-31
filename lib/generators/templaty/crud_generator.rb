@@ -126,8 +126,8 @@ module Templaty
     end
 
     def seed
-      from = 'crud/db/seeds/pd/model.rb.erb'
-      to   = "db/seeds/pd/#{options[:table].singularize}.rb"
+      from = 'crud/db/seeds/pd/table.rb.erb'
+      to   = "db/seeds/pd/#{options[:table]}.rb"
 
       template(from, to)
     end
@@ -143,24 +143,24 @@ module Templaty
 
     def spec
       %w[
-        spec/controllers/namespace/model/create_spec.rb
-        spec/controllers/namespace/model/destroy_spec.rb
-        spec/controllers/namespace/model/edit_spec.rb
-        spec/controllers/namespace/model/gridy/json_spec.rb
-        spec/controllers/namespace/model/gridy/unlogged_spec.rb
-        spec/controllers/namespace/model/index_spec.rb
-        spec/controllers/namespace/model/new_spec.rb
-        spec/controllers/namespace/model/update_spec.rb
-        spec/features/namespace/model/create_spec.rb
-        spec/features/namespace/model/destroy_spec.rb
-        spec/features/namespace/model/gridy/initial_spec.rb
-        spec/features/namespace/model/gridy/search_spec.rb
-        spec/features/namespace/model/gridy/sort_spec.rb
-        spec/features/namespace/model/update_spec.rb
+        spec/controllers/namespace/table/create_spec.rb
+        spec/controllers/namespace/table/destroy_spec.rb
+        spec/controllers/namespace/table/edit_spec.rb
+        spec/controllers/namespace/table/gridy/json_spec.rb
+        spec/controllers/namespace/table/gridy/unlogged_spec.rb
+        spec/controllers/namespace/table/index_spec.rb
+        spec/controllers/namespace/table/new_spec.rb
+        spec/controllers/namespace/table/update_spec.rb
+        spec/features/namespace/table/create_spec.rb
+        spec/features/namespace/table/destroy_spec.rb
+        spec/features/namespace/table/gridy/initial_spec.rb
+        spec/features/namespace/table/gridy/search_spec.rb
+        spec/features/namespace/table/gridy/sort_spec.rb
+        spec/features/namespace/table/update_spec.rb
         spec/models/model/list_spec.rb
       ].each do |path|
         from = "crud/#{path}.erb"
-        to   = path.sub('namespace', options[:namespace]).sub('model', options[:table].singularize)
+        to   = path.sub('namespace', options[:namespace]).sub('table', options[:table])
 
         template(from, to)
       end

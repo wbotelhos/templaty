@@ -8,7 +8,7 @@ RSpec.describe <%= options[:namespace].classify %>::<%= options[:table].classify
     it 'redirects' do
       get :index
 
-      expect(response.status).to be 302
+      expect(response.status).to be(302)
     end
   end
 

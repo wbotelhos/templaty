@@ -7,6 +7,6 @@ RSpec.describe <%= options[:namespace].classify %>::<%= options[:table].classify
   it 'redirects' do
     get :gridy, xhr: true
 
-    expect(response.status).to be 401
+    expect(response.status).to be(401)
   end
 end

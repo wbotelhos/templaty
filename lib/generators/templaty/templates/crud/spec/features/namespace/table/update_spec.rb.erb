@@ -10,7 +10,7 @@ require 'support/factory_bot'
 
 RSpec.describe <%= options[:table].classify%>, '#update', :js do
   let!(:profile) { create_profile(with_plan: true) }
-  let!(:<%= model_name %>) { create(:<%= model_name %>, <%= data_as_hash_string_raw %>, unit: current_unit) }
+  let!(:<%= model_name %>) { create(:<%= model_name %>, <%= data_as_hash_string_raw %>, unit: profile.unit) }
 
   it 'works' do
     login profile.user,

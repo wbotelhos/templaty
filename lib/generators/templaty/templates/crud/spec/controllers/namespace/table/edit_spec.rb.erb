@@ -2,14 +2,13 @@
 
 require 'support/factory_bot'
 require 'support/shared/logged'
-require '<%= options[:namespace] %>/<%= options[:table] %>_controller'
 
 RSpec.describe <%= options[:namespace].classify %>::<%= options[:table].classify.pluralize %>Controller, '#edit' do
   context 'when unlogged' do
     it 'redirects' do
       get :edit, params: { id: 0 }
 
-      expect(response.status).to be 302
+      expect(response.status).to be(302)
     end
   end
 
@@ -25,7 +24,7 @@ RSpec.describe <%= options[:namespace].classify %>::<%= options[:table].classify
     end
 
     context 'when <%= options[:table].singularize %> is from other unit' do
-      let!(:<%= options[:table].singularize %>) { create :<%= options[:table].singularize %> }
+      let!(:<%= options[:table].singularize %>) { create(:<%= options[:table].singularize %>) }
 
       it 'redirects' do
         get :edit, params: { id: <%= options[:table].singularize %> }

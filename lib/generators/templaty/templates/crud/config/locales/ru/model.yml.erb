@@ -4,7 +4,7 @@ ru:
     attributes:
       <%= options[:table].singularize %>:
       <%- fields.sort.each do |field| -%>
-        <%= field %>: <%= field %>
+        <%= field %>: <%= field.replace('_cents', '').split('_').map(&:capitalize).join(' ') %>
       <%- end -%>
 
   <%= options[:table].singularize %>:

@@ -14,7 +14,7 @@ RSpec.describe <%= options[:namespace].classify %>::<%= options[:table].classify
     it 'redirects' do
       patch :update, params: { id: 0 }
 
-      expect(response.status).to be 302
+      expect(response.status).to be(302)
     end
   end
 
