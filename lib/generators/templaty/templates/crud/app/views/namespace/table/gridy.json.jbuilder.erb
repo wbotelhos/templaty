@@ -5,6 +5,7 @@
   fields << 'edit_path'
   fields << 'show_path' if options[:show_route]
 -%>
+
 json.list do
   json.array! @items do |<%= options[:table].singularize %>|
     <%- fields.sort.each do |field| -%>
