@@ -1,0 +1,53 @@
+<%- fields = Templaty::Helper.fields(options) -%>
+<%- datas = fields.sort.reduce({}) { |acc, field| acc.tap { |data| data[field] = Templaty::Helper.data_for(options) } } -%>
+<%- model_name = options[:table].singularize -%>
+# frozen_string_literal: true
+
+require 'support/capybara_box'
+require 'support/factory_bot'
+
+RSpec.describe <%= options[:table].classify%>, '#index', :js do
+  def line(record)
+    [
+      <%- fields.each do |field| -%>
+      <%- if field.start_with?('percentage') -%>
+      Helper.percentage(record.<%= field %>, type: :cents),
+      <%- elsif field.end_with?('_cents') -%>
+      Helper.money(record.<%= field %>, type: :cents),
+      <%- else -%>
+      record.<%= field %>,
+      <%- end -%>
+      <%- end -%>
+    ].join("\n")
+  end
+
+  def links
+    [
+      { href: ->(record) { edit_<%= options[:namespace] %>_<%= options[:table].singularize %>_path(record) }, text: 'Editar' },
+      <%- if options[:show_route] -%>
+      { href: ->(record) { <%= options[:table].singularize %>_path(record) }, text: 'Visualizar' },
+      <%- end -%>
+    ]
+  end
+
+  let!(:profile) { create_profile(with_plan: true) }
+  <%- fields.sort.each.with_index do |field, index| -%>
+  let!(:record_<%= index + 1 %>) do
+    create(:<%= model_name %>, <%= Templaty::Helper.data_as_hash_string(datas[field], value_attribute: :raw) %>, unit: profile.unit)
+  end
+  <%- end -%>
+
+  it 'works' do
+    login profile.user, permissions: [['<%= options[:namespace] %>/<%= options[:table] %>', :index]], redirect_to: <%= options[:namespace] %>_<%= options[:table] %>_path
+
+    expect(page).to have_link('<%= Templaty::Helper.i18n_new(options).capitalize %>', href: new_<%= options[:namespace] %>_<%= options[:table].singularize %>_path)
+
+    gridy_head %w[<%= Templaty::Helper.fields_i18n(options).join(' ') %> Menu]
+
+    gridy_rows links, [
+      <%- fields.size.times do |index| -%>
+      record_<%= index + 1 %>,
+      <%- end -%>
+    ]
+  end
+end

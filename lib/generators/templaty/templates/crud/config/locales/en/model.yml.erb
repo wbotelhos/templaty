@@ -1,0 +1,14 @@
+<%- fields = Templaty::Helper.fields(options) -%>
+en:
+  activerecord:
+    attributes:
+      <%= options[:table].singularize %>:
+      <%- fields.sort.each do |field| -%>
+        <%= field %>: <%= field.split('_').map(&:capitalize).join(' ') %>
+      <%- end -%>
+
+  <%= options[:table].singularize %>:
+    destroy:
+      confirm: "Deseja mesmo excluir o item %{name}?"
+
+    other: <%= options[:name_one].capitalize %>s

@@ -1,0 +1,12 @@
+# frozen_string_literal: true
+
+require 'support/factory_bot'
+require 'support/shared/logged'
+
+RSpec.describe <%= options[:namespace].classify %>::<%= options[:table].classify.pluralize %>Controller, '#gridy' do
+  it 'redirects' do
+    get :gridy, xhr: true
+
+    expect(response.status).to be 401
+  end
+end

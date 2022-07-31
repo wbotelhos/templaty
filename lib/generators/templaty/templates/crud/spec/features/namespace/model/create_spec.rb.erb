@@ -1,0 +1,35 @@
+<%- fields = Templaty::Helper.fields(options) -%>
+<%- data = Templaty::Helper.data_for(options) -%>
+<%- model_name = options[:table].singularize -%>
+# frozen_string_literal: true
+
+require 'support/capybara_box'
+require 'support/factory_bot'
+
+RSpec.describe <%= options[:table].classify%>, '#create', :js do
+  let!(:profile) { create_profile(with_plan: true) }
+
+  it 'works' do
+    login profile.user,
+      permissions: [
+        ['<%= options[:namespace] %>/<%= options[:table] %>', :create],
+        ['<%= options[:namespace] %>/<%= options[:table] %>', :edit],
+        ['<%= options[:namespace] %>/<%= options[:table] %>', :index],
+      ],
+      redirect_to: new_<%= options[:namespace] %>_<%= model_name %>_path
+
+    <%- fields.sort.each do |field| -%>
+    fill_in '<%= model_name %>_<%= field %>', with: '<%= data[field][:formatted] %>'
+    <%- end -%>
+
+    click_button('Salvar')
+
+    expect(page).to have_text('<%= options[:name_one].capitalize %> <%= Templaty::Helper.i18n_created(options) %> com sucesso.')
+
+    visit edit_<%= options[:namespace] %>_<%= model_name %>_path(described_class.last)
+
+    <%- fields.sort.each do |field| -%>
+    expect(page).to have_field('<%= model_name %>_<%= field %>', with: '<%= data[field][:formatted] %>')
+    <%- end -%>
+  end
+end

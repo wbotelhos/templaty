@@ -1,0 +1,32 @@
+<%- fields = Templaty::Helper.fields(options) -%>
+<%- fields_grid = Templaty::Helper.fields_grid(options) -%>
+<%%= render 'title' %>
+
+<div class="box-content container--form container--form-top">
+  <%%= errors_for f.object %>
+
+  <div class="clearfix grid__collapse">
+    <%- fields_grid.each.with_index do |numbers, grid_index| -%>
+    <div class="form-grid">
+    <%- numbers.each.with_index do |item, number_index| -%>
+      <%- field = fields[grid_index + number_index] -%>
+      <div class="form-field <%= field %>">
+        <%%= f.label :<%= field %>, class: :form__label %>
+        <%- if field.start_with?('percentage_cents') -%>
+        <%%= percentage_field f, :<%= field %>, <%= (grid_index + number_index).zero? ? 'focus: true, ' : nil %>type: :cents, class: 'form__input form__input--fluid' %>
+        <%- elsif field.end_with?('_cents') -%>
+        <%%= money_field f, :<%= field %>, <%= (grid_index + number_index).zero? ? 'focus: true, ' : nil %>type: :cents, class: 'form__input form__input--fluid' %>
+        <%- else -%>
+        <%%= f.text_field :<%= field %>, <%= (grid_index + number_index).zero? ? 'focus: true, ' : nil %>placeholder: t('activerecord.attributes.<%= options[:table].singularize %>.<%= field %>'), class: 'form__input form__input--fluid' %>
+        <%- end -%>
+        <%%= f.errors_for :<%= field %> %>
+      </div>
+
+    <%- end -%>
+    </div>
+
+    <%- end -%>
+  </div>
+
+  <%%= render 'shared/guide/back_save_buttons', f: f %>
+</div>

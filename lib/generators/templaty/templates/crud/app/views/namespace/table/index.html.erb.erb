@@ -1,0 +1,8 @@
+<%%= render 'submenu' %>
+<%%= render 'title' %>
+
+<%%= link_to t('.new'), new_<%= options[:namespace] %>_<%= options[:table].singularize %>_path, class: 'button--strong button-new' %>
+
+<%%= render 'shared/<%= options[:namespace] %>/gridy' %>
+
+<input data-param name="gridy.url" type="hidden" value="<%%= gridy_<%= options[:namespace] %>_<%= options[:table] %>_path %>">

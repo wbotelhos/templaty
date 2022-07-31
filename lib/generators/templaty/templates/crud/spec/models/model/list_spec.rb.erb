@@ -1,0 +1,16 @@
+<%- fields = Templaty::Helper.fields(options) -%>
+<%- datas = fields.sort.reduce({}) { |acc, field| acc.tap { |data| data[field] = Templaty::Helper.data_for(options) } } -%>
+<%- model_name = options[:table].singularize -%>
+# frozen_string_literal: true
+
+require 'support/factory_bot'
+
+RSpec.describe <%= options[:table].classify%>, '.list' do
+  <%- fields.sort.each.with_index do |field, index| -%>
+  let!(:<%= model_name %>_<%= index + 1 %>) { create(:<%= model_name %>, <%= Templaty::Helper.data_as_hash_string(datas[field], value_attribute: :raw) %>) }
+  <%- end -%>
+
+  <%- fields.sort.each.with_index do |field, index| -%>
+  it { expect(described_class.list(<%= Templaty::Helper.data_wrap(datas[field][field][:raw]) %>).ids).to eq([<%= model_name %>_<%= index + 1 %>.id]) }
+  <%- end -%>
+end

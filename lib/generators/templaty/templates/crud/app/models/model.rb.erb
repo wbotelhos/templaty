@@ -1,0 +1,41 @@
+<%- belongs_to = Templaty::Helper.belongs_to(options).sort -%>
+<%- fields = Templaty::Helper.fields(options).sort -%>
+<%- validates_numericality = Templaty::Helper.validates_numericality(options) -%>
+# frozen_string_literal: true
+
+class <%= options[:table].classify%> < ApplicationRecord
+  include PgSearch::Model
+
+  pg_search_scope :list,
+    against:  %i[<%= fields.join(' ') %>],
+    ignoring: :accents,
+    using:    { tsearch: { prefix: true } }
+
+  idy
+
+  <%- fields.each do |field| -%>
+  <%- if field == 'description' -%>
+  normalizy :<%= field %>, with: :strip
+  <%- elsif field.end_with?('_cents') || field == 'percentage' -%>
+  normalizy :<%= field %>, with: { money: { type: :cents } }
+  <%- else -%>
+  normalizy :<%= field %>, with: :squish
+  <%- end -%>
+  <%- end -%>
+
+  <%- belongs_to.sort.each do |field| -%>
+  belongs_to :<%= field %>
+  <%- end -%>
+
+  <%- fields.each do |field| -%>
+  validates :<%= field %>, presence: true
+  <%- end -%>
+
+  <%- validates_numericality&.each do |field, values| -%>
+  validates :<%= field %>, numericality: {
+    greater_than_or_equal_to: <%= values[:min] %>,
+    less_than_or_equal_to:    <%= values[:max] %>,
+  }
+
+  <%- end -%>
+end

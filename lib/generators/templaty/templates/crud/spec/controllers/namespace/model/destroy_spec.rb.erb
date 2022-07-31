@@ -1,0 +1,120 @@
+<%- model_name = options[:table].singularize -%>
+# frozen_string_literal: true
+
+require 'support/factory_bot'
+require 'support/shared/logged'
+require '<%= options[:namespace] %>/<%= options[:table] %>_controller'
+
+RSpec.describe <%= options[:namespace].classify %>::<%= options[:table].classify.pluralize %>Controller, '#destroy' do
+  context 'when unlogged' do
+    it 'redirects' do
+      delete :destroy, params: { id: 0 }
+
+      expect(response.status).to be 302
+    end
+  end
+
+  context 'when logged' do
+    include_context 'when_logged', permissions: [['<%= options[:namespace] %>/<%= options[:table] %>', :destroy]], with_plan: true
+
+    let!(:<%= model_name %>) { create(:<%= model_name %>, unit: current_unit) }
+
+    context 'when fail' do
+      before { allow_any_instance_of(<%= options[:table].classify%>).to receive(:destroy).and_return(false) }
+
+      it 'assigns record' do
+        delete :destroy, params: { id: <%= model_name %> }
+
+        expect(assigns(:<%= model_name %>)).to eq(<%= model_name %>)
+      end
+
+      it 're-renders' do
+        delete :destroy, params: { id: <%= model_name %> }
+
+        expect(response).to render_template(:edit)
+      end
+
+      it 'does not destroy the record' do
+        expect { delete :destroy, params: { id: <%= model_name %> } }.not_to change(<%= options[:table].classify%>, :count)
+      end
+
+      context 'with no xxx' do
+        it 'builds one new xxx' do
+          delete :destroy, params: { id: <%= model_name %> }
+
+          xxxs = assigns(:xxxs)
+
+          expect(xxxs).to be_a Branch
+          expect(xxxs).to be_new_record
+        end
+      end
+
+      context 'with xxx' do
+        let!(:xxx_1) { create(:xxx, <%= model_name %>: <%= model_name %>, aaa: 'aaa-1') }
+        let!(:xxx_2) { create(:xxx, <%= model_name %>: <%= model_name %>, aaa: 'aaa-2') }
+
+        it 'keeps the data sent' do
+          delete :destroy, params: { id: <%= model_name %> }
+
+          xxxs = assigns(:xxxs)
+
+          expect(xxxs.size).to be(2)
+
+          xxx = xxxs[0]
+
+          expect(xxx.aaa).to eq('aaa-1')
+
+          xxx = xxxs[1]
+
+          expect(xxx.aaa).to eq('aaa-2')
+        end
+      end
+    end
+
+    context 'when <%= model_name %> is from other unit' do
+      let!(:<%= model_name %>_other_unit) { create :<%= model_name %> }
+
+      it 'redirects' do
+        delete :destroy, params: { id: <%= model_name %>_other_unit.id }
+
+        expect(response).to redirect_to(<%= options[:namespace] %>_<%= options[:table] %>_url)
+      end
+
+      it 'flashes' do
+        delete :destroy, params: { id: <%= model_name %>_other_unit.id }
+
+        expect(flash[:info]).to eq('<%= options[:name_one].capitalize %> inexistente.')
+      end
+
+      it 'does not destroy' do
+        delete :destroy, params: { id: <%= model_name %>_other_unit.id }
+
+        expect(<%= model_name %>_other_unit.reload).not_to be(nil)
+      end
+    end
+
+    context 'when success' do
+      it 'assigns record' do
+        delete :destroy, params: { id: <%= model_name %> }
+
+        expect(assigns(:<%= model_name %>)).to eq(<%= model_name %>)
+      end
+
+      it 'destroys the record' do
+        expect { delete :destroy, params: { id: <%= model_name %> } }.to change(<%= options[:table].classify%>, :count).by(-1)
+      end
+
+      it 'redirects' do
+        delete :destroy, params: { id: <%= model_name %> }
+
+        expect(response).to redirect_to(<%= options[:namespace] %>_<%= options[:table] %>_url)
+      end
+
+      it 'flashes' do
+        delete :destroy, params: { id: <%= model_name %> }
+
+        expect(flash[:info]).to eq('<%= options[:name_one].capitalize %> <%= Templaty::Helper.i18n_removed(options) %> com sucesso.')
+      end
+    end
+  end
+end

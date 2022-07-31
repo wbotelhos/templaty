@@ -1,0 +1,14 @@
+<h2 class="system-title">Editar <%= options[:name_one].capitalize %></h2>
+
+<%%= form_for [:<%= options[:namespace] %>, @<%= options[:table].singularize %>], html: { class: nil, <%= options[:multipart] ? "enctype: 'multipart/form-data', " : nil %>id: nil } do |f| %>
+  <%%= render 'form', f: f %>
+<%% end %>
+
+<div class="clearfix form-field">
+  <%%= button_to(t('helpers.submit.<%= options[:table].singularize %>.destroy'), [:<%= options[:namespace] %>, @<%= options[:table].singularize %>],
+    class:      'form-destroy__button',
+    data:       { confirm: t('<%= options[:table].singularize %>.destroy.confirm', name: @<%= options[:table].singularize %>.name), disable_with: t(:wait) },
+    form_class: 'form-destroy',
+    method:     :delete
+  ) %>
+</div>

@@ -1,0 +1,24 @@
+<% fields = Templaty::Helper.fields(options) -%>
+import modulejs from 'modulejs';
+
+<%- if fields.any? { |field| field.start_with?('percentage') || field.end_with?('_cents') } -%>
+import Masker from '@/modules/masker';
+<%- end -%>
+
+modulejs.define('<%= options[:namespace] %>.<%= options[:table] %>.form', () => {
+  'use strict';
+
+  class <%= options[:namespace].classify %><%= options[:table].classify.pluralize %>Form {
+    create() {
+      <%- fields.sort.each do |field| -%>
+      <%- if field.start_with?('percentage') -%>
+      Masker.percentage(document.querySelector('[data-percentage]'));
+      <%- elsif field.end_with?('_cents') -%>
+      Masker.money(document.querySelector('[data-money]'));
+      <%- end -%>
+      <%- end -%>
+    }
+  }
+
+  return SystemDiscountsForm;
+});

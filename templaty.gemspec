@@ -15,6 +15,7 @@ Gem::Specification.new do |spec|
   spec.version          = Templaty::VERSION
 
   spec.add_development_dependency 'codecov'
+  spec.add_development_dependency 'faker'
   spec.add_development_dependency 'pry-byebug'
   spec.add_development_dependency 'rspec-rails'
   spec.add_development_dependency 'rubocop-performance'

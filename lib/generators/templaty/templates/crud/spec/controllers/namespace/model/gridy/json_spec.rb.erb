@@ -1,0 +1,52 @@
+<%- data = Templaty::Helper.data_for(options) -%>
+<%- fields = Templaty::Helper.fields(options) -%>
+<%- data_as_hash_string_raw = Templaty::Helper.data_as_hash_string(data, value_attribute: :raw) -%>
+# frozen_string_literal: true
+
+require 'support/factory_bot'
+require 'support/shared/logged'
+
+RSpec.describe <%= options[:namespace].classify %>::<%= options[:table].classify.pluralize %>Controller, '#gridy' do
+  include_context 'when_logged', permissions: [['<%= options[:namespace] %>/<%= options[:table] %>', :gridy]], with_plan: true
+
+  render_views
+
+  let!(:<%= options[:table].singularize %>) { create(:<%= options[:table].singularize %>, <%= data_as_hash_string_raw %>, unit: current_unit) }
+
+  # ignored: other unit
+  before { create(:<%= options[:table].singularize %>, <%= Templaty::Helper.data_as_hash_string(data, value_attribute: :raw) %>) }
+
+  it 'serializes' do
+    get :gridy, xhr: true
+
+    result = json_for(response)
+
+    expect(contain_icon?(result[:list], :more_image, '/assets/icons/ellipsis.svg')).to be(true)
+
+    <%-
+      fields << 'edit_path'
+      fields << 'show_path' if options[:show_route]
+    -%>
+    expect(result).to eq(
+      list: [
+        {
+          <%- fields.sort.each do |field| -%>
+          <%- if field == 'edit_path' -%>
+          edit_path: edit_<%= options[:namespace] %>_<%= options[:table].singularize %>_path(<%= options[:table].singularize %>),
+          <%- elsif field == 'show_path' -%>
+          show_path: <%= options[:table].singularize %>_path(<%= options[:table].singularize %>,
+          <%- elsif field.start_with?('percentage') -%>
+          <%= field.sub('_cents', '') %>: <%= Templaty::Helper.data_wrap(data[field][:formatted]) %>,
+          <%- elsif field.end_with?('_cents') -%>
+          <%= field.sub('_cents', '') %>: <%= Templaty::Helper.data_wrap(data[field][:formatted]) %>,
+          <%- else -%>
+          <%= field %>: <%= Templaty::Helper.data_wrap(data[field][:formatted]) %>,
+          <%- end -%>
+          <%- end -%>
+        },
+      ],
+
+      total: 1
+    )
+  end
+end

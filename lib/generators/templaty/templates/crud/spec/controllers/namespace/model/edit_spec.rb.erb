@@ -1,0 +1,43 @@
+# frozen_string_literal: true
+
+require 'support/factory_bot'
+require 'support/shared/logged'
+require '<%= options[:namespace] %>/<%= options[:table] %>_controller'
+
+RSpec.describe <%= options[:namespace].classify %>::<%= options[:table].classify.pluralize %>Controller, '#edit' do
+  context 'when unlogged' do
+    it 'redirects' do
+      get :edit, params: { id: 0 }
+
+      expect(response.status).to be 302
+    end
+  end
+
+  context 'when logged' do
+    include_context 'when_logged', permissions: [['<%= options[:namespace] %>/<%= options[:table] %>', :edit]], with_plan: true
+
+    let!(:<%= options[:table].singularize %>) { create(:<%= options[:table].singularize %>, unit: current_unit) }
+
+    it 'assigns the record' do
+      get :edit, params: { id: <%= options[:table].singularize %> }
+
+      expect(assigns(:<%= options[:table].singularize %>)).to eq(<%= options[:table].singularize %>)
+    end
+
+    context 'when <%= options[:table].singularize %> is from other unit' do
+      let!(:<%= options[:table].singularize %>) { create :<%= options[:table].singularize %> }
+
+      it 'redirects' do
+        get :edit, params: { id: <%= options[:table].singularize %> }
+
+        expect(response).to redirect_to(<%= options[:namespace] %>_<%= options[:table] %>_path)
+      end
+
+      it 'flashes' do
+        get :edit, params: { id: <%= options[:table].singularize %> }
+
+        expect(flash[:info]).to eq('<%= options[:name_one].capitalize %> inexistente.')
+      end
+    end
+  end
+end

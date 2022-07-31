@@ -1,0 +1,34 @@
+<%- data = Templaty::Helper.data_for(options) -%>
+<%- data_as_hash_string_raw = Templaty::Helper.data_as_hash_string(data, value_attribute: :raw) -%>
+<%- fields = Templaty::Helper.fields(options) -%>
+<%- controller_path = "#{options[:namespace]}/#{options[:table]}" -%>
+<%- model_name = options[:table].singularize -%>
+# frozen_string_literal: true
+
+require 'support/capybara_box'
+require 'support/factory_bot'
+
+RSpec.describe <%= options[:table].classify%>, '#update', :js do
+  let!(:profile) { create_profile(with_plan: true) }
+  let!(:<%= model_name %>) { create(:<%= model_name %>, <%= data_as_hash_string_raw %>, unit: current_unit) }
+
+  it 'works' do
+    login profile.user,
+      permissions: [['<%= controller_path %>', :update], ['<%= controller_path %>', :index]],
+      redirect_to: edit_<%= options[:namespace] %>_<%= model_name %>_path(<%= model_name %>)
+
+    <%- fields.each do |field| -%>
+    fill_in '<%= model_name %>_<%= field %>', with: '<%= data[field][:formatted] %>'
+    <%- end -%>
+
+    click_button('Salvar')
+
+    expect(page).to have_text('<%= options[:name_one].capitalize %> <%= Templaty::Helper.i18n_updated(options) %> com sucesso.')
+
+    visit edit_<%= options[:namespace] %>_<%= model_name %>_path(<%= model_name %>.reload)
+
+    <%- fields.each do |field| -%>
+    expect(page).to have_field('<%= model_name %>_<%= field %>', with: '<%= data[field][:formatted] %>')
+    <%- end -%>
+  end
+end

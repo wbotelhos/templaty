@@ -1,0 +1,48 @@
+<% fields = Templaty::Helper.fields(options) + ['menu'] -%>
+import modulejs from 'modulejs';
+
+import GridyCommon from '@/modules/gridy_common';
+import HandlebarsHelpers from '@/modules/handlebars_helpers';
+import I18n from '@/modules/i18n';
+import MenuActions from '@/modules/menu_actions';
+
+const Templates = require('@/pages/<%= options[:namespace] %>/templates');
+
+modulejs.define('<%= options[:namespace] %>.<%= options[:table] %>.index', () => {
+  'use strict';
+
+  class <%= options[:namespace].classify %><%= options[:table].classify.pluralize %>Index {
+    constructor(options) {
+      this.grid = $('[data-gridy]');
+      this.options = options;
+    }
+
+    create() {
+      this.gridy();
+
+      HandlebarsHelpers.init();
+    }
+
+    gridy() {
+      GridyCommon.gridy(this.grid, {
+        find: 'name',
+        sortName: '<%= options[:table] %>.created_at',
+        sortOrder: 'desc',
+        template: Templates.<%= options[:table] %>.gridy,
+        url: this.options.gridy.url,
+
+        done() {
+          MenuActions.init();
+        },
+
+        headers: [
+          <%- fields.each do |field| -%>
+          { name: I18n.t('gridy.headers.<%= field.sub('_cents', '') %>'), value: '<%= field == 'menu' ? nil : field %>' },
+          <%- end -%>
+        ],
+      });
+    }
+  }
+
+  return <%= options[:namespace].classify %><%= options[:table].classify.pluralize %>Index;
+});

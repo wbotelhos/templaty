@@ -35,6 +35,8 @@ GEM
     diff-lcs (1.5.0)
     docile (1.4.0)
     erubi (1.10.0)
+    faker (2.21.0)
+      i18n (>= 1.8.11, < 2)
     i18n (1.12.0)
       concurrent-ruby (~> 1.0)
     json (2.6.2)
@@ -132,6 +134,7 @@ PLATFORMS
 
 DEPENDENCIES
   codecov
+  faker
   pry-byebug
   rspec-rails
   rubocop-performance

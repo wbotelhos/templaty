@@ -1,0 +1,27 @@
+<%- controller_path = "#{options[:namespace]}/#{options[:table]}" %>
+# frozen_string_literal: true
+
+require 'support/capybara_box'
+require 'support/factory_bot'
+
+RSpec.describe <%= options[:table].classify%>, '#destroy', :js do
+  let!(:profile) { create_profile(with_plan: true) }
+  let!(:<%= options[:table].singularize %>) { create(:<%= options[:table].singularize %>, unit: profile.unit) }
+
+  it 'works' do
+    login profile.user,
+      permissions: [
+        ['<%= controller_path %>', :destroy],
+        ['<%= controller_path %>', :gridy],
+        ['<%= controller_path %>', :index],
+        ['<%= controller_path %>', :update],
+      ],
+      redirect_to: edit_<%= options[:namespace] %>_<%= options[:table].singularize %>_path(<%= options[:table].singularize %>)
+
+    page.accept_confirm { click_button('Apagar <%= Templaty::Helper.i18n_this(options) %> <%= options[:name_one]%>') }
+
+    expect(page).to have_text('<%= options[:name_one].capitalize %> <%= Templaty::Helper.i18n_removed(options) %> com sucesso.')
+
+    expect(described_class.count).to be(0)
+  end
+end

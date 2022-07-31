@@ -3,6 +3,7 @@
 ENV['RAILS_ENV'] ||= 'test'
 
 require 'support/coverage'
+require 'support/helper'
 
 require 'templaty'
 require 'pry-byebug'

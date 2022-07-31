@@ -1,0 +1,60 @@
+<%- data = Templaty::Helper.data_for(options) -%>
+<%- fields = Templaty::Helper.fields(options) -%>
+# frozen_string_literal: true
+
+require 'support/factory_bot'
+require 'support/shared/logged'
+
+RSpec.describe <%= options[:namespace].classify %>::<%= options[:table].classify.pluralize %>Controller, '#create' do
+  context 'when unlogged' do
+    it 'redirects' do
+      post :create
+
+      expect(response.status).to be 302
+    end
+  end
+
+  context 'when logged' do
+    include_context 'when_logged', permissions: [['<%= options[:namespace] %>/<%= options[:table] %>', :create]], with_plan: true
+
+    let!(:parameters) { { <%= Templaty::Helper.data_as_hash_string(data, value_attribute: :raw) %> } }
+
+    context 'when fail' do
+      before { parameters[:<%= Templaty::Helper.fields_presence(options).first %>] = nil }
+
+      it 're-renders' do
+        post :create, params: { <%= options[:table].singularize %>: parameters }
+
+        expect(response).to render_template :new
+      end
+
+      it 'does not destroy the record' do
+        expect { post :create, params: { <%= options[:table].singularize %>: parameters } }.not_to change(<%= options[:table].classify%>, :count)
+      end
+    end
+
+    context 'when success' do
+      it 'redirects' do
+        post :create, params: { <%= options[:table].singularize %>: parameters }
+
+        expect(response).to redirect_to <%= options[:namespace] %>_<%= options[:table] %>_url
+      end
+
+      it 'flashes' do
+        post :create, params: { <%= options[:table].singularize %>: parameters }
+
+        expect(flash[:info]).to eq '<%= options[:name_one].capitalize %> <%= Templaty::Helper.i18n_created(options) %> com sucesso.'
+      end
+
+      it 'creates the record' do
+        post :create, params: { <%= options[:table].singularize %>: parameters }
+
+        <%= options[:table].singularize %> = <%= options[:table].classify%>.last
+
+        <%- fields.sort.each do |field| -%>
+        expect(<%= options[:table].singularize %>.<%= field %>).to <%= Templaty::Helper.rspec_matcher(data[field][:raw]) %>
+        <%- end -%>
+      end
+    end
+  end
+end

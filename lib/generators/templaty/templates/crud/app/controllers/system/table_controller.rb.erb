@@ -1,0 +1,71 @@
+# frozen_string_literal: true
+
+module <%= options[:namespace].classify %>
+  class <%= options[:table].classify.pluralize %>Controller < <%= options[:namespace].classify %>::BaseController
+    before_action :authorizy
+
+    before_action :assign_record_for_action, only: %i[destroy edit update]
+
+    def create
+      @<%= options[:table].singularize %>         = <%= options[:table].classify%>.new(create_params)
+      @<%= options[:table].singularize %>.unit_id = session[:current_unit_id]
+
+      if @<%= options[:table].singularize %>.save
+        redirect_to <%= options[:namespace] %>_<%= options[:table] %>_url, info: t('.success')
+      else
+        render :new
+      end
+    end
+
+    def destroy
+      if @<%= options[:table].singularize %>.destroy
+        redirect_to <%= options[:namespace] %>_<%= options[:table] %>_url, info: t('.success')
+      else
+        render :edit
+      end
+    end
+
+    def edit; end
+
+    def gridy
+      lister = Lister
+               .new(self, params)
+               .init
+               .select(%i[id <%= Templaty::Helper.fields(options).sort.join(' ') %>])
+               .where(unit_id: session[:current_unit_id])
+
+      @items = lister.items
+      @total = lister.total
+    end
+
+    def index; end
+
+    def new
+      @<%= options[:table].singularize %> = <%= options[:table].classify%>.new
+    end
+
+    def update
+      if @<%= options[:table].singularize %>.update(update_params)
+        redirect_to <%= options[:namespace] %>_<%= options[:table] %>_url, info: t('.success')
+      else
+        render :edit
+      end
+    end
+
+    private
+
+    def assign_record_for_action
+      @<%= options[:table].singularize %> = <%= options[:table].classify%>.where(unit_id: session[:current_unit_id]).findy(params[:id])
+
+      redirect_to <%= options[:namespace] %>_<%= options[:table] %>_url, info: t('.not_found') unless @<%= options[:table].singularize %>
+    end
+
+    def create_params
+      params.require(:<%= options[:table].singularize %>).permit(<%= Templaty::Helper.fields(options).sort.map { |field| ":#{field}" }.join(', ') %>)
+    end
+
+    def update_params
+      params.require(:<%= options[:table].singularize %>).permit(<%= Templaty::Helper.fields(options).sort.map { |field| ":#{field}" }.join(', ') %>)
+    end
+  end
+end

@@ -1,0 +1,21 @@
+<%- fields = Templaty::Helper.fields(options) -%>
+<%- fields_grid = Templaty::Helper.fields_grid(options) -%>
+<%- fields_grid_style = Templaty::Helper.fields_grid_style(options) -%>
+[data-module~='<%= options[:namespace] %>.<%= options[:table] %>.form'] {
+  .container--form {
+    margin: 60px 16px;
+  }
+
+  <%- fields_grid.each.with_index do |numbers, grid_index| -%>
+    <%- numbers.each.with_index do |item, number_index| -%>
+      <%- field = fields[grid_index + number_index] -%>
+      <%- style = fields_grid_style[grid_index + number_index] -%>
+  .<%= field %> {
+    <%- style.each do |key, value| -%>
+    <%= key %>: <%= value %>;
+    <%- end -%>
+  }
+
+  <%- end -%>
+  <%- end -%>
+}

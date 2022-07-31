@@ -1,0 +1,24 @@
+# frozen_string_literal: true
+
+require 'support/factory_bot'
+require 'support/shared/logged'
+
+RSpec.describe <%= options[:namespace].classify %>::<%= options[:table].classify.pluralize %>Controller, '#new' do
+  context 'when unlogged' do
+    it 'redirects' do
+      get :new
+
+      expect(response.status).to be 302
+    end
+  end
+
+  context 'when logged' do
+    include_context 'when_logged', permissions: [['<%= options[:namespace] %>/<%= options[:table] %>', :new]], with_plan: true
+
+    it 'loads the role' do
+      get :new
+
+      expect(assigns(:<%= options[:table].singularize %>)).to be_kind_of(<%= options[:table].classify%>)
+    end
+  end
+end

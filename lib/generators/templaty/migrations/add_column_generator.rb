@@ -22,7 +22,7 @@ module Templaty
           raise('[Templaty] Options "default" cannot be blank when option "null" is false.')
         end
 
-        target = "db/migrate/#{timestamp(0)}_add_column_#{options[:column]}_to_#{options[:table].pluralize}.rb"
+        target = "db/migrate/#{timestamp(0)}_add_column_#{options[:column]}_to_#{options[:table]}.rb"
 
         template('db/migrate/add_column.rb.erb', target)
 
