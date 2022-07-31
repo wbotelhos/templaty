@@ -8,6 +8,9 @@
 
 Rails template generator
 
+- [Adding a column with default value](#adding-a-column-with-default-value)
+- [CRUD](#crud)
+
 ## Description
 
 It's an opinated Rails' template generator.
@@ -19,8 +22,6 @@ Add the following code on your `Gemfile` and run `bundle install`:
 ```ruby
 gem 'templaty'
 ```
-
-- [Adding a column with default value](#adding-a-column-with-default-value)
 
 ## Migrations
 
