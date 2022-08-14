@@ -7,6 +7,8 @@ module Templaty
     module_function
 
     def belongs_to(options)
+      return [] if options[:belongs_to].nil?
+
       options[:belongs_to].split(',')
     end
 

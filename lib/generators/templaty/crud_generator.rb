@@ -4,7 +4,6 @@ module Templaty
   class CrudGenerator < Rails::Generators::Base
     source_root File.expand_path('./templates', __dir__)
 
-    class_option :belongs_to, required: true, type: :string, desc: 'the belongs_to relation (user)'
     class_option :fields_grid, required: true, type: :string, desc: 'The grid style for each field'
     class_option :fields_i18n, required: true, type: :string, desc: 'Fields I18n (Nome,Descrição)'
     class_option :fields_presence, required: true, type: :string, desc: 'Mandatory fields (name,total_cents)'
@@ -18,6 +17,7 @@ module Templaty
     class_option :table, required: true, type: :string, desc: 'Table name (discounts)'
 
     class_option :avatar, required: false, type: :boolean, default: false, desc: 'Has avatar? (true|false)'
+    class_option :belongs_to, required: false, type: :string, desc: 'the belongs_to relation (user)'
     class_option :cover, required: false, type: :boolean, default: false, desc: 'Has cover? (true|false)'
     class_option :multipart, required: false, type: :boolean, default: false, desc: 'Multipart form? (true|false)'
     class_option :photos, required: false, type: :boolean, default: false, desc: 'Has photos? (true|false)'

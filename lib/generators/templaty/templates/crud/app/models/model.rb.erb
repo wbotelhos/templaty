@@ -23,7 +23,7 @@ class <%= options[:table].classify%> < ApplicationRecord
     ignoring: :accents,
     using:    { tsearch: { prefix: true } }
 
-  <%- belongs_to.sort.each do |field| -%>
+  <%- belongs_to&.each do |field| -%>
   belongs_to :<%= field %>
   <%- end -%>
 
