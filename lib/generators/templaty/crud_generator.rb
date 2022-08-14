@@ -22,6 +22,7 @@ module Templaty
     class_option :multipart, required: false, type: :boolean, default: false, desc: 'Multipart form? (true|false)'
     class_option :photos, required: false, type: :boolean, default: false, desc: 'Has photos? (true|false)'
     class_option :rails_version, required: false, type: :string, default: '6.1', desc: 'Rails version'
+    class_option :routes, required: false, type: :boolean, default: true, desc: 'Ignores the routes entry (true|false)'
     class_option :show_route, required: false, type: :boolean, default: false, desc: 'Add show route? (true|false)'
 
     class_option :validates_numericality,
@@ -111,6 +112,8 @@ module Templaty
     end
 
     def route_resource
+      return if options[:routes] == false
+
       content = <<~HEREDOC
         resources :#{options[:table]},
           concerns:   :gridyable,
@@ -123,6 +126,8 @@ module Templaty
     end
 
     def route_gridyable
+      return if options[:routes] == false
+
       route %(
         concern :gridyable do
           get :gridy, defaults: { format: :json }, on: :collection
