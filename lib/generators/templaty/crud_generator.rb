@@ -31,7 +31,7 @@ module Templaty
       desc: 'numericality validation (amount_cents:0:100_00)'
 
     def controller
-      from = "crud/app/controllers/#{options[:namespace]}/table_controller.rb.erb"
+      from = 'crud/app/controllers/namespace/table_controller.rb.erb'
       to   = "app/controllers/#{options[:namespace]}/#{options[:table]}_controller.rb"
 
       template(from, to)
