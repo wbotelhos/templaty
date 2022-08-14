@@ -1,11 +1,13 @@
+<%- ignore_actions = Templaty::Helper.values(options, :ignore_actions) -%>
+<%- only = %w[destroy edit update] - ignore_actions -%>
 # frozen_string_literal: true
 
 module <%= options[:namespace].classify %>
   class <%= options[:table].classify.pluralize %>Controller < <%= options[:namespace].classify %>::BaseController
     before_action :authorizy
+    before_action :assign_record, only: %i[<%= only.join(' ') %>]
 
-    before_action :assign_record, only: %i[destroy edit update]
-
+    <%- unless ignore_actions.include?('create') -%>
     def create
       @<%= options[:table].singularize %>         = <%= options[:table].classify%>.new(create_params)
       @<%= options[:table].singularize %>.unit_id = session[:current_unit_id]
@@ -17,6 +19,8 @@ module <%= options[:namespace].classify %>
       end
     end
 
+    <%- end -%>
+    <%- unless ignore_actions.include?('destroy') -%>
     def destroy
       if @<%= options[:table].singularize %>.destroy
         redirect_to <%= options[:namespace] %>_<%= options[:table] %>_url, info: t('.success')
@@ -25,8 +29,12 @@ module <%= options[:namespace].classify %>
       end
     end
 
+    <%- end -%>
+    <%- unless ignore_actions.include?('edit') -%>
     def edit; end
 
+    <%- end -%>
+    <%- unless ignore_actions.include?('gridy') -%>
     def gridy
       lister = Lister
                .new(self, params)
@@ -38,12 +46,19 @@ module <%= options[:namespace].classify %>
       @total = lister.total
     end
 
+    <%- end -%>
+    <%- unless ignore_actions.include?('index') -%>
     def index; end
 
+    <%- end -%>
+    <%- unless ignore_actions.include?('new') -%>
     def new
       @<%= options[:table].singularize %> = <%= options[:table].classify%>.new
     end
 
+    <%- end -%>
+
+    <%- unless ignore_actions.include?('update') -%>
     def update
       if @<%= options[:table].singularize %>.update(update_params)
         redirect_to <%= options[:namespace] %>_<%= options[:table] %>_url, info: t('.success')
@@ -52,20 +67,27 @@ module <%= options[:namespace].classify %>
       end
     end
 
+    <%- end -%>
     private
 
+    <%- if only.empty? -%>
     def assign_record
       @<%= options[:table].singularize %> = <%= options[:table].classify%>.where(unit_id: session[:current_unit_id]).findy(params[:id])
 
       redirect_to <%= options[:namespace] %>_<%= options[:table] %>_url, info: t('.not_found') unless @<%= options[:table].singularize %>
     end
 
+    <%- end -%>
+    <%- unless ignore_actions.include?('create') -%>
     def create_params
       params.require(:<%= options[:table].singularize %>).permit(<%= Templaty::Helper.fields(options).sort.map { |field| ":#{field}" }.join(', ') %>)
     end
 
+    <%- end -%>
+    <%- unless ignore_actions.include?('update') -%>
     def update_params
       params.require(:<%= options[:table].singularize %>).permit(<%= Templaty::Helper.fields(options).sort.map { |field| ":#{field}" }.join(', ') %>)
     end
+    <%- end -%>
   end
 end

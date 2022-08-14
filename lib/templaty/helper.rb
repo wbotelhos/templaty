@@ -129,5 +129,9 @@ module Templaty
         acc.tap { |data| data[field] = { min: min, max: max } }
       end
     end
+
+    def values(options, option)
+      options[option.to_sym]&.split(',') || []
+    end
   end
 end

@@ -1,10 +1,10 @@
-<% fields = Templaty::Helper.fields(options) -%>
+<%- fields = Templaty::Helper.fields(options) -%>
 import modulejs from 'modulejs';
 
 <%- if fields.any? { |field| field.start_with?('percentage') || field.end_with?('_cents') } -%>
 import Masker from '@/modules/masker';
-<%- end -%>
 
+<%- end -%>
 modulejs.define('<%= options[:namespace] %>.<%= options[:table] %>.form', () => {
   'use strict';
 

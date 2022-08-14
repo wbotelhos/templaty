@@ -1,4 +1,4 @@
-<h2 class="system-title">Cadastrar <%= options[:name_one].capitalize %></h2>
+<h2 class="system-title"><%%%= t('.title') %></h2>
 
 <%%= form_for [:<%= options[:namespace] %>, @<%= options[:table].singularize %>], html: { class: nil, <%= options[:multipart] ? "enctype: 'multipart/form-data', " : nil %>id: nil } do |f| %>
   <%%= render 'form', f: f %>
