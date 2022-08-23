@@ -6,6 +6,6 @@
 <%%= link_to t('.new'), new_<%= options[:namespace] %>_<%= options[:table].singularize %>_path, class: 'button--strong button-new' if authorizy?('<%= options[:namespace] %>/<%= options[:table] %>', :new) %>
 <%- end -%>
 
-<%%= render 'shared/<%= options[:namespace] %>/gridy' %>
+<%%= render 'shared/system/gridy' %>
 
 <input data-param name="gridy.url" type="hidden" value="<%%= gridy_<%= options[:namespace] %>_<%= options[:table] %>_path %>">
