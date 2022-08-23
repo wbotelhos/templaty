@@ -20,5 +20,5 @@ modulejs.define('<%= options[:namespace] %>.<%= options[:table] %>.form', () => 
     }
   }
 
-  return SystemDiscountsForm;
+  return <%= options[:namespace].classify %><%= options[:table].classify.pluralize %>Form;
 });
