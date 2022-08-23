@@ -70,7 +70,7 @@ module <%= options[:namespace].classify %>
     <%- end -%>
     private
 
-    <%- if only.empty? -%>
+    <%- unless only.empty? -%>
     def assign_record
       @<%= options[:table].singularize %> = <%= options[:table].classify%>.where(unit_id: session[:current_unit_id]).findy(params[:id])
 
