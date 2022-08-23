@@ -163,8 +163,6 @@ module Templaty
 
           template(from, to)
         end
-
-        template(from, to)
       end
     end
 
