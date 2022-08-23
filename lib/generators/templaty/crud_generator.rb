@@ -150,7 +150,7 @@ module Templaty
       ignore_i18n_actions = Templaty::Helper.values(options, :ignore_i18n_actions)
       ignore_i18n_locales = Templaty::Helper.values(options, :ignore_i18n_locales)
 
-      actions = %w[create destroy edit index show update]
+      actions = %w[create destroy edit index new show update]
 
       %w[en pt-BR ru].each do |locale|
         next if ignore_i18n_locales.include?(locale)
