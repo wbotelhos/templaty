@@ -15,7 +15,7 @@ json.list do
     json.more_image image_path('icons/ellipsis.svg')
     <%- elsif field == 'show_path' -%>
     json.show_path <%= options[:table].singularize %>_path(<%= options[:table].singularize %>)
-    <%- elsif field.start_with?('percentage') -%>
+    <%- elsif field.end_with?('_percent') || field.start_with?('percentage') -%>
     json.<%= field.sub('_cents', '') %> Helper.percentage(<%= options[:table].singularize %>.<%= field %>)
     <%- elsif field.end_with?('_cents') -%>
     json.<%= field.sub('_cents', '') %> Helper.money(<%= options[:table].singularize %>.<%= field %>, type: :cents)
