@@ -6,7 +6,7 @@ require 'support/shared/logged'
 RSpec.describe <%= options[:namespace].classify %>::<%= options[:table].classify.pluralize %>Controller, '#edit' do
   context 'when unlogged' do
     it 'redirects' do
-      get :edit, params: { id: 0 }
+      get :edit, params: { id: 'any' }
 
       expect(response.status).to be(302)
     end
@@ -15,7 +15,7 @@ RSpec.describe <%= options[:namespace].classify %>::<%= options[:table].classify
   context 'when logged' do
     include_context 'when_logged', permissions: [['<%= options[:namespace] %>/<%= options[:table] %>', :edit]], with_plan: true
 
-    let!(:<%= options[:table].singularize %>) { create(:<%= options[:table].singularize %>, unit: current_unit) }
+    let!(:<%= options[:table].singularize %>) { create(:<%= options[:table].singularize %><%= belongs_to.include?('unit') ? ', unit: current_unit' : nil %>) }
 
     it 'assigns the record' do
       get :edit, params: { id: <%= options[:table].singularize %> }

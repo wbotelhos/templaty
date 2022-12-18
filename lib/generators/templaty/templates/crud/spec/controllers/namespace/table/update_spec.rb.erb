@@ -12,7 +12,7 @@ require 'support/shared/logged'
 RSpec.describe <%= options[:namespace].classify %>::<%= options[:table].classify.pluralize %>Controller, '#update' do
   context 'when unlogged' do
     it 'redirects' do
-      patch :update, params: { id: 0 }
+      patch :update, params: { id: 'any' }
 
       expect(response.status).to be(302)
     end
@@ -22,7 +22,7 @@ RSpec.describe <%= options[:namespace].classify %>::<%= options[:table].classify
     include_context 'when_logged', permissions: [['<%= options[:namespace] %>/<%= options[:table] %>', :update]], with_plan: true
 
     let!(:<%= model_name %>) do
-      create(:<%= model_name %>, <%= data_as_hash_string_raw %>, unit: current_unit)
+      create(:<%= model_name %>, <%= data_as_hash_string_raw %><%= belongs_to.include?('unit') ? ', unit: current_unit' : nil %>)
     end
 
     let!(:parameters) do
@@ -30,7 +30,7 @@ RSpec.describe <%= options[:namespace].classify %>::<%= options[:table].classify
     end
 
     context 'when fail' do
-      before { parameters[:<%= fields_presence.first %>] = nil }
+      before { allow_any_instance_of(<%= options[:table].classify %>).to receive(:valid?).and_return(false) }
 
       it 'assigns record' do
         patch :update, params: { id: <%= model_name %>, <%= model_name %>: parameters }

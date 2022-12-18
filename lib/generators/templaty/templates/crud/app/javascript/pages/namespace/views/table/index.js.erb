@@ -25,9 +25,7 @@ modulejs.define('<%= options[:namespace] %>.<%= options[:table] %>.index', () =>
 
     gridy() {
       GridyCommon.gridy(this.grid, {
-        find: 'name',
-        sortName: '<%= options[:table] %>.created_at',
-        sortOrder: 'desc',
+        sortName: '<%= options[:table] %>.<%= fields.first %>',
         template: Templates.<%= options[:table] %>.gridy,
         url: this.options.gridy.url,
 
@@ -37,7 +35,7 @@ modulejs.define('<%= options[:namespace] %>.<%= options[:table] %>.index', () =>
 
         headers: [
           <%- fields.each do |field| -%>
-          { name: I18n.t('gridy.headers.<%= field.sub('_cents', '') %>'), value: '<%= field == 'menu' ? nil : field %>' },
+          { name: I18n.t('gridy.headers.<%= field %>'), value: '<%= field == 'menu' ? nil : field %>' },
           <%- end -%>
         ],
       });

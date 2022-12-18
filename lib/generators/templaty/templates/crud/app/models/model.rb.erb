@@ -3,7 +3,7 @@
 <%- validates_numericality = Templaty::Helper.validates_numericality(options) -%>
 # frozen_string_literal: true
 
-class <%= options[:table].classify%> < ApplicationRecord
+class <%= options[:table].classify %> < ApplicationRecord
   include PgSearch::Model
 
   idy

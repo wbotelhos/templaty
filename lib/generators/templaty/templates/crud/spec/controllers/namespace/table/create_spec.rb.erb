@@ -20,7 +20,7 @@ RSpec.describe <%= options[:namespace].classify %>::<%= options[:table].classify
     let!(:parameters) { { <%= Templaty::Helper.data_as_hash_string(data, value_attribute: :raw) %> } }
 
     context 'when fail' do
-      before { parameters[:<%= Templaty::Helper.fields_presence(options).first %>] = nil }
+      before { allow_any_instance_of(<%= options[:table].classify %>).to receive(:valid?).and_return(false) }
 
       it 're-renders' do
         post :create, params: { <%= options[:table].singularize %>: parameters }

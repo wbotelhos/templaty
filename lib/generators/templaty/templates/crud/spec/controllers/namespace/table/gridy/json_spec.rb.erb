@@ -11,7 +11,7 @@ RSpec.describe <%= options[:namespace].classify %>::<%= options[:table].classify
 
   render_views
 
-  let!(:<%= options[:table].singularize %>) { create(:<%= options[:table].singularize %>, <%= data_as_hash_string_raw %>, unit: current_unit) }
+  let!(:<%= options[:table].singularize %>) { create(:<%= options[:table].singularize %>, <%= data_as_hash_string_raw %><%= belongs_to.include?('unit') ? ', unit: current_unit' : nil %>) }
 
   # ignored: other unit
   before { create(:<%= options[:table].singularize %>, <%= Templaty::Helper.data_as_hash_string(data, value_attribute: :raw) %>) }

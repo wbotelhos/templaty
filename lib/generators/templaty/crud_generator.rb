@@ -164,6 +164,13 @@ module Templaty
           template(from, to)
         end
       end
+
+      name = options[:table].singularize
+
+      from = "crud/config/locales/#{locale}/#{name}.yml.erb"
+      to   = "config/locales/#{locale}/#{name}.yml"
+
+      template(from, to)
     end
 
     def js

@@ -1,4 +1,5 @@
 <%- model_name = options[:table].singularize -%>
+<%- belongs_to = Helper.belongs_to(options) -%>
 # frozen_string_literal: true
 
 require 'support/factory_bot'
@@ -7,7 +8,7 @@ require 'support/shared/logged'
 RSpec.describe <%= options[:namespace].classify %>::<%= options[:table].classify.pluralize %>Controller, '#destroy' do
   context 'when unlogged' do
     it 'redirects' do
-      delete :destroy, params: { id: 0 }
+      delete :destroy, params: { id: 'any' }
 
       expect(response.status).to be 302
     end
@@ -16,7 +17,7 @@ RSpec.describe <%= options[:namespace].classify %>::<%= options[:table].classify
   context 'when logged' do
     include_context 'when_logged', permissions: [['<%= options[:namespace] %>/<%= options[:table] %>', :destroy]], with_plan: true
 
-    let!(:<%= model_name %>) { create(:<%= model_name %>, unit: current_unit) }
+    let!(:<%= model_name %>) { create(:<%= model_name %><%= belongs_to.include?('unit') ? ', unit: current_unit' : nil %>) }
 
     context 'when fail' do
       before { allow_any_instance_of(<%= options[:table].classify%>).to receive(:destroy).and_return(false) }

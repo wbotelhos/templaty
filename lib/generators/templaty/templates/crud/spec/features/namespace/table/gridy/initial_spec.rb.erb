@@ -10,10 +10,10 @@ RSpec.describe <%= options[:table].classify%>, '#index', :js do
   def line(record)
     [
       <%- fields.each do |field| -%>
-      <%- if field.start_with?('percentage') -%>
-      Helper.percentage(record.<%= field %>, type: :cents),
-      <%- elsif field.end_with?('_cents') -%>
-      Helper.money(record.<%= field %>, type: :cents),
+      <%- if field.end_with?('_cents') -%>
+      Helper.money(record.<%= field %>),
+      <%- elsif field.end_with?('_percent') || field.start_with?('percentage') -%>
+      Helper.percentage(record.<%= field %>),
       <%- else -%>
       record.<%= field %>,
       <%- end -%>
