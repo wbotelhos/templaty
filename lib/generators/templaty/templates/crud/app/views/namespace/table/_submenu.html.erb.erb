@@ -1,5 +1,0 @@
-<%% content_for :ice_menu_subitems do %>
-  <%% if authorizy?('<%= options[:namespace] %>/<%= options[:table].singularize %>', :index) %>
-    <%%= render 'shared/ice_menu_subitem', href: <%= options[:namespace] %>_<%= options[:table] %>_path, label: '<%= options[:table] %>.index' %>
-  <%% end %>
-<%% end %>

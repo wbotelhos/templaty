@@ -1,0 +1,8 @@
+<%- params = Templaty::Params.new(options) -%>
+# frozen_string_literal: true
+
+puts "[seed] #{File.basename(__FILE__)}"
+
+@<%= params.raw.model.name %> = {
+  one: create_<%= params.raw.model.name %>(<%= params.model_attributes %>),
+}

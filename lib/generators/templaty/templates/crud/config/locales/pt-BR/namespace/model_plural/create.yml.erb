@@ -1,0 +1,6 @@
+<%- params = Templaty::Params.new(options) -%>
+pt-BR:
+  <%= params.raw.namespace %>:
+    <%= params.model_plural %>:
+      create:
+        success: <%= params.raw.model.i18n['pt-BR'].one %> <%= params.i18n_created %>.

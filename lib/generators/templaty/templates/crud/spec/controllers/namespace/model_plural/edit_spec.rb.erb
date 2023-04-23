@@ -1,0 +1,41 @@
+<%- params = Templaty::Params.new(options) -%>
+# frozen_string_literal: true
+
+require 'support/factory_bot'
+require 'support/shared_context/logged'
+
+RSpec.describe <%= params.controller_namespaced_class %>, '#edit' do
+  it 'redirects when unlogged' do
+    get :edit, params: { id: 'any' }
+
+    expect(response.status).to be(302)
+  end
+
+  context 'when logged' do
+    include_context 'when_logged', permissions: [['<%= params.controller_path %>', :edit]], with_plan: true
+
+    let!(:<%= params.raw.model.name %>) { create(:<%= params.raw.model.name %>, <%= params.model_attributes_string %>) }
+
+    it 'assigns record' do
+      get :edit, params: { id: <%= params.raw.model.name %> }
+
+      expect(assigns(:<%= params.raw.model.name %>)).to eq(<%= params.raw.model.name %>)
+    end
+
+    context 'when <%= params.raw.model.name %> is from other unit' do
+      let!(:<%= params.raw.model.name %>) { create(:<%= params.raw.model.name %>, unit: create(:unit)) }
+
+      it 'redirects' do
+        get :edit, params: { id: <%= params.raw.model.name %> }
+
+        expect(response).to redirect_to(<%= params.raw.namespace %>_<%= params.raw.model.name %>_path)
+      end
+
+      it 'flashes' do
+        get :edit, params: { id: <%= params.raw.model.name %> }
+
+        expect(flash[:info]).to eq('<%= params.raw.model.i18n['pt-BR'].one %> <%= params.i18n_not_found %>.')
+      end
+    end
+  end
+end

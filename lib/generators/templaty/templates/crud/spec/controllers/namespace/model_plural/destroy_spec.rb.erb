@@ -1,0 +1,117 @@
+<%- params = Templaty::Params.new(options) -%>
+# frozen_string_literal: true
+
+require 'support/factory_bot'
+require 'support/shared_context/logged'
+
+RSpec.describe <%= params.controller_namespaced_class %>, '#destroy' do
+  it 'redirects when unlogged' do
+    delete :destroy, params: { id: 'any' }
+
+    expect(response.status).to be(302)
+  end
+
+  context 'when logged' do
+    include_context 'when_logged', permissions: [['<%= params.controller_path %>', :destroy]], with_plan: true
+
+    let!(:<%= params.raw.model.name %>) { create(:<%= params.raw.model.name %>, <%= params.model_attributes_string %>) }
+
+    context 'when fail' do
+      before { allow_any_instance_of(<%= params.model_class %>).to receive(:destroy).and_return(false) }
+
+      it 'assigns record' do
+        delete :destroy, params: { id: <%= params.raw.model.name %> }
+
+        expect(assigns(:<%= params.raw.model.name %>)).to eq(<%= params.raw.model.name %>)
+      end
+
+      it 're-renders' do
+        delete :destroy, params: { id: <%= params.raw.model.name %> }
+
+        expect(response).to render_template(:edit)
+      end
+
+      it 'does not destroy the record' do
+        expect { delete :destroy, params: { id: <%= params.raw.model.name %> } }.not_to change(<%= params.model_class %>, :count)
+      end
+
+      context 'with no xxx' do
+        it 'builds one new xxx' do
+          delete :destroy, params: { id: <%= params.raw.model.name %> }
+
+          xxxs = assigns(:xxxs)
+
+          expect(xxxs).to be_a Branch
+          expect(xxxs).to be_new_record
+        end
+      end
+
+      context 'with xxx' do
+        let!(:xxx_1) { create(:xxx, <%= params.raw.model.name %>: <%= params.raw.model.name %>, yyy: 'yyy-1') }
+        let!(:xxx_2) { create(:xxx, <%= params.raw.model.name %>: <%= params.raw.model.name %>, yyy: 'yyy-2') }
+
+        it 'keeps the data sent' do
+          delete :destroy, params: { id: <%= params.raw.model.name %> }
+
+          xxxs = assigns(:xxxs)
+
+          expect(xxxs.size).to be(2)
+
+          xxx = xxxs[0]
+
+          expect(xxx.yyy).to eq('yyy-1')
+
+          xxx = xxxs[1]
+
+          expect(xxx.yyy).to eq('yyy-2')
+        end
+      end
+    end
+
+    context 'when <%= params.raw.model.name %> is from other unit' do
+      let!(:<%= params.raw.model.name %>) { create(:<%= params.raw.model.name %>, unit: create(:unit)) }
+
+      it 'redirects' do
+        delete :destroy, params: { id: <%= params.raw.model.name %>.id }
+
+        expect(response).to redirect_to(<%= params.raw.namespace %>_<%= params.raw.model.name %>_url)
+      end
+
+      it 'flashes' do
+        delete :destroy, params: { id: <%= params.raw.model.name %>.id }
+
+        expect(flash[:info]).to eq('<%= params.raw.model.i18n['pt-BR'].one %> <%= params.i18n_not_found %>.')
+      end
+
+      it 'does not destroy' do
+        delete :destroy, params: { id: <%= params.raw.model.name %>.id }
+
+        expect(<%= params.raw.model.name %>.reload).not_to be(nil)
+      end
+    end
+
+    context 'when success' do
+      it 'assigns record' do
+        delete :destroy, params: { id: <%= params.raw.model.name %> }
+
+        expect(assigns(:<%= params.raw.model.name %>)).to eq(<%= params.raw.model.name %>)
+      end
+
+      it 'destroys the record' do
+        expect { delete :destroy, params: { id: <%= params.raw.model.name %> } }.to change(<%= params.model_class %>, :count).by(-1)
+      end
+
+      it 'redirects' do
+        delete :destroy, params: { id: <%= params.raw.model.name %> }
+
+        expect(response).to redirect_to(<%= params.raw.namespace %>_<%= params.raw.model.name %>_url)
+      end
+
+      it 'flashes' do
+        delete :destroy, params: { id: <%= params.raw.model.name %> }
+
+        expect(flash[:info]).to eq('<%= params.raw.model.i18n['pt-BR'].one %> <%= params.i18n_destroyed %>.')
+      end
+    end
+  end
+end

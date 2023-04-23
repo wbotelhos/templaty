@@ -1,0 +1,33 @@
+<%- params = Templaty::Params.new(options) -%>
+<%- if params.system? -%>
+<%%= render('title') %>
+
+<%- end -%>
+<div class="mt-8 form__content">
+  <%%= errors_for(f.object) %>
+
+  <%- params.fields_by_grid.each do |item| -%>
+  <div class="form-row <%= item.clazz %>">
+    <%- item.fields.each do |field| -%>
+      <div>
+      <%- if field.type == 'text' -%>
+        <%%= f.label(:<%= field.name %>, class: :form__label) %>
+        <%%= f.text_field(:<%= field.name %><%= field.autofocus ? ', autofocus: true': nil %>, class: 'form__input form__input--fluid', placeholder: I18n.t('activerecord.attributes.<%= params.raw.model.name %>.<%= field.name %>')) %>
+        <%%= f.errors_for(:<%= field.name %>) %>
+      <%- elsif field.type == 'checkbox' -%>
+        <%%= f.label(:<%= field.name %>, class: :form__label) %>
+
+        <%% @items.each do |label, value| %>
+          <div data-checkbox>
+            <%%= check_box_tag("<%= field.name %>-#{value}", f.object.<%= field.name %>.include?(value), { class: :form__checkbox, name: '<%= params.raw.model.name %>[<%= field.name %>][]' }) %>
+            <%%= label_tag("<%= field.name %>-#{value}", label, class: 'form__label-checkbox') %>
+          </div>
+        <%% end %>
+      <%- end -%>
+      </div>
+    <%- end -%>
+  </div>
+  <%- end -%>
+
+  <%%= render('shared/back_save_buttons', f: f) %>
+</div>

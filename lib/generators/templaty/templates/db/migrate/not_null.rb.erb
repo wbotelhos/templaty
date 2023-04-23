@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-class NotNull<%= options[:column].classify %>To<%= options[:table].classify.pluralize %> < ActiveRecord::Migration[<%= options[:rails_version] %>]
+class NotNull<%= options[:column].classify %>To<%= params.raw.model.name.classify.pluralize %> < ActiveRecord::Migration[<%= options[:rails_version] %>]
   def change
-    add_check_constraint :<%= options[:table] %>, '<%= options[:column] %> IS NOT NULL', name: '<%= options[:table] %>_<%= options[:column] %>_null', validate: false
+    add_check_constraint :<%= params.raw.model.name %>, '<%= options[:column] %> IS NOT NULL', name: '<%= params.raw.model.name %>_<%= options[:column] %>_null', validate: false
   end
 end

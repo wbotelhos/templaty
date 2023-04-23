@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-class AddColumn<%= options[:column].classify %>To<%= options[:table].classify.pluralize %> < ActiveRecord::Migration[<%= options[:rails_version] %>]
+class AddColumn<%= options[:column].classify %>To<%= params.raw.model.name.classify.pluralize %> < ActiveRecord::Migration[<%= options[:rails_version] %>]
   def change
-    add_column <%= options[:table] %>, :<%= options[:column] %>, :<%= options[:type] %>
+    add_column <%= params.raw.model.name %>, :<%= options[:column] %>, :<%= options[:type] %>
   end
 end

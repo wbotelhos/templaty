@@ -1,15 +1,15 @@
-<%- fields = Templaty::Helper.fields(options) -%>
-<%- data_i18n = Templaty::Helper.data_i18n(options) -%>
+<%- params = Templaty::Params.new(options) -%>
 pt-BR:
   activerecord:
     attributes:
-      <%= options[:table].singularize %>:
-      <%- fields.sort.each do |field| -%>
-        <%= field %>: <%= data_i18n[field] %>
+      <%= params.raw.model.name %>:
+      <%- params.raw.model.fields.each do |field| -%>
+        <%= field.name %>: <%= field.i18n['pt-BR'] %>
       <%- end -%>
 
-  <%= options[:table].singularize %>:
+  <%= params.raw.model.name %>:
     destroy:
       confirm: "Deseja mesmo excluir o item %{name}?"
 
-    other: <%= options[:name_one].capitalize %>s
+    one: <%= params.raw.model.i18n['pt-BR'].one %>
+    other: <%= params.raw.model.i18n['pt-BR'].other %>

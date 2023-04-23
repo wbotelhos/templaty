@@ -1,0 +1,42 @@
+<%- params = Templaty::Params.new(options) -%>
+# frozen_string_literal: true
+
+require 'support/factory_bot'
+require 'support/shared_context/logged'
+
+RSpec.describe <%= params.controller_namespaced_class %>, '#gridy' do
+  include_context 'when_logged', permissions: [['<%= params.controller_path %>', :gridy]], with_plan: true
+
+  render_views
+
+  let!(:<%= params.raw.model.name %>) { create(:<%= params.raw.model.name %>, <%= params.model_attributes_string %>) }
+
+  # ignored: other unit
+  before { create(:<%= params.raw.model.name %>, unit: create(:unit)) }
+
+  it 'serializes' do
+    get :gridy, xhr: true
+
+    result = json_for(response)
+
+    expect(contain_icon?(result[:list], :more_image, '/assets/icons/ellipsis.svg')).to be(true)
+
+    expect(result).to eq(
+      list: [
+        {
+          <%- if params.action?('edit') -%>
+          edit_path: edit_<%= params.raw.namespace %>_<%= params.raw.model.name %>_path(<%= params.raw.model.name %>),
+          <%- end -%>
+          <%- if params.action?('show') -%>
+          show_path: <%= params.raw.model.name %>_path(<%= params.raw.model.name %>),
+          <%- end -%>
+          <%- params.raw.model.fields.each do |field| -%>
+          <%= field.name %>: <%= field.name %>,
+          <%- end -%>
+        },
+      ],
+
+      total: 1
+    )
+  end
+end

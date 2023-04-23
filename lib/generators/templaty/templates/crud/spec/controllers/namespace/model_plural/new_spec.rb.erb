@@ -1,0 +1,23 @@
+<%- params = Templaty::Params.new(options) -%>
+# frozen_string_literal: true
+
+require 'support/factory_bot'
+require 'support/shared_context/logged'
+
+RSpec.describe <%= params.controller_namespaced_class %>, '#new' do
+  it 'redirects when unlogged' do
+    get :new
+
+    expect(response.status).to be(302)
+  end
+
+  context 'when logged' do
+    include_context 'when_logged', permissions: [['<%= params.controller_path %>', :new]], with_plan: true
+
+    it 'success' do
+      get :new
+
+      expect(response.status).to be(200)
+    end
+  end
+end

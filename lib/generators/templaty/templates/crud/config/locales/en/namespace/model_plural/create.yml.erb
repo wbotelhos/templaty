@@ -1,0 +1,6 @@
+<%- params = Templaty::Params.new(options) -%>
+en:
+  <%= params.raw.namespace %>:
+    <%= params.model_plural %>:
+      create:
+        success: <%= params.raw.model.i18n.en.one %> created.

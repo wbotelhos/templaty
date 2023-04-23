@@ -1,0 +1,13 @@
+<%- params = Templaty::Params.new(options) -%>
+# frozen_string_literal: true
+
+require 'support/factory_bot'
+require 'support/shared_context/logged'
+
+RSpec.describe <%= params.controller_namespaced_class %>, '#gridy' do
+  it 'redirects when unlogged' do
+    get :gridy, xhr: true
+
+    expect(response.status).to be(401)
+  end
+end

@@ -1,0 +1,53 @@
+<%- params = Templaty::Params.new(options) -%>
+
+# frozen_string_literal: true
+
+require 'support/capybara_box'
+require 'support/factory_bot'
+
+RSpec.describe <%= params.model_class %>, '#index', :js do
+  def line(record)
+    [
+      <%- params.raw.model.fields.each do |field| -%>
+      <%- if field.name.end_with?('_cents') -%>
+      Helper.money(record.<%= field.name %>),
+      <%- elsif field.name.end_with?('_percent') || field.name == 'percentage' -%>
+      Helper.percentage(record.<%= field.name %>),
+      <%- else -%>
+      record.<%= field.name %>,
+      <%- end -%>
+      <%- end -%>
+    ].join("\n")
+  end
+
+  def links
+    [
+      { href: ->(record) { edit_<%= params.raw.namespace %>_<%= params.raw.model.name %>_path(record) }, text: 'Editar' },
+      <%- if params.action?('show') -%>
+      { href: ->(record) { <%= params.raw.model.name %>_path(record) }, text: 'Visualizar' },
+      <%- end -%>
+    ]
+  end
+
+  let!(:profile) { create_profile(with_plan: true) }
+
+  <%- params.raw.model.fields.each.with_index do |field, index| -%>
+  let!(:record_<%= index + 1 %>) do
+    create(:<%= params.raw.model.name %>, <%= params.model_attributes_string %>)
+  end
+
+  <%- end -%>
+  it 'has the correct initial state' do
+    login profile.user, permissions: [['<%= params.controller_path %>', :index]], redirect_to: <%= params.raw.namespace %>_<%= params.raw.model.name %>_path
+
+    expect(page).to have_link('<%= params.i18n_new.capitalize %>', href: new_<%= params.raw.namespace %>_<%= params.raw.model.name %>_path)
+
+    gridy_head(%w[<%= params.raw.model.fields.map { |field| field.i18n['pt-BR'] }.join(' ') %> Menu])
+
+    gridy_rows links, [
+      <%- params.raw.model.fields.size.times do |index| -%>
+      record_<%= index + 1 %>,
+      <%- end -%>
+    ]
+  end
+end

@@ -1,0 +1,42 @@
+<%- params = Templaty::Params.new(options) -%>
+import modulejs from 'modulejs';
+
+import GridyCommon from '@/modules/gridy_common';
+import I18n from '@/modules/i18n';
+import MenuActions from '@/modules/menu_actions';
+
+const Templates = require('@/pages/<%= params.raw.namespace %>/templates');
+
+modulejs.define('<%= params.raw.namespace %>.<%= params.raw.model.name %>.index', () => {
+  'use strict';
+
+  class <%= params.model_class_plural.delete('::') %>Index {
+    constructor(options) {
+      this.grid = $('[data-gridy]');
+      this.options = options;
+    }
+
+    create() {
+      this.gridy();
+    }
+
+    gridy() {
+      GridyCommon.gridy(this.grid, {
+        done: MenuActions.init,
+
+        headers: [
+          <%- params.raw.model.fields.each do |field| -%>
+          { name: I18n.t('gridy.headers.<%= field.name %>'), value: '<%= field.name %>' },
+          <%- end -%>
+          { name: I18n.t('action.other'), value: '' },
+        ],
+
+        sortName: '<%= params.raw.model.name %>.<%= params.model_fields.first %>',
+        template: Templates.<%= params.model_plural %>.gridy,
+        url: this.options.gridy.url,
+      });
+    }
+  }
+
+  return <%= params.model_class_plural.delete('::') %>Index;
+});

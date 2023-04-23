@@ -1,14 +1,15 @@
-<%- fields = Templaty::Helper.fields(options) -%>
+<%- params = Templaty::Params.new(options) -%>
 en:
   activerecord:
     attributes:
-      <%= options[:table].singularize %>:
-      <%- fields.sort.each do |field| -%>
-        <%= field %>: <%= field.sub('_cents', '').split('_').map(&:capitalize).join(' ') %>
+      <%= params.raw.model.name %>:
+      <%- params.raw.model.fields.each do |field| -%>
+        <%= field.name %>: <%= field.i18n.en %>
       <%- end -%>
 
-  <%= options[:table].singularize %>:
+  <%= params.raw.model.name %>:
     destroy:
-      confirm: "Deseja mesmo excluir o item %{name}?"
+      confirm: "Do you really want to delete the item %{name}?"
 
-    other: <%= options[:name_one].capitalize %>s
+    one: <%= params.raw.model.i18n.en.one %>
+    other: <%= params.raw.model.i18n.en.other %>

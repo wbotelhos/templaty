@@ -1,0 +1,33 @@
+<%- params = Templaty::Params.new(options) -%>
+# frozen_string_literal: true
+
+require 'support/capybara_box'
+require 'support/factory_bot'
+
+RSpec.describe <%= params.model_class %>, '#create', :js do
+  let!(:profile) { create_profile(with_plan: true) }
+
+  it 'creates record' do
+    login profile.user,
+      permissions: [
+        ['<%= params.controller_path %>', :create],
+        ['<%= params.controller_path %>', :edit],
+        ['<%= params.controller_path %>', :index],
+      ],
+      redirect_to: new_<%= params.raw.namespace %>_<%= params.raw.model.name %>_path
+
+    <%- params.raw.model.fields.each do |field| -%>
+    fill_in('<%= params.raw.model.name %>_<%= field.name %>', with: '<%= field.name %>')
+    <%- end -%>
+
+    click_button('Salvar')
+
+    expect(page).to have_text('<%= params.raw.model.i18n['pt-BR'].one %> <%= params.i18n_created %>.')
+
+    visit edit_<%= params.raw.namespace %>_<%= params.raw.model.name %>_path(<%= params.model_class %>.last)
+
+    <%- params.raw.model.fields.each do |field| -%>
+    expect(page).to have_field('<%= params.raw.model.name %>_<%= field.name %>', with: '<%= field.name %>')
+    <%- end -%>
+  end
+end

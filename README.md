@@ -42,67 +42,7 @@ rails g templaty:migrations:add_column \
 ## CRUD
 
 ```ruby
-rails g templaty:crud \
-  --avatar=false \
-  --belongs_to=unit \
-  --cover=false \
-  --fields_grid=100,50:50 \
-  --fields_i18n=Nome,Porcentagem,Valor \
-  --fields_presence=name \
-  --fields=name,percentage_cents,amount_cents \
-  --gender=male \
-  --multipart=false \
-  --name_one=desconto \
-  --name_other=descontos \
-  --namespace_i18n=sistema \
-  --namespace=system \
-  --path=descontos \
-  --photos=false \
-  --show_route=false \
-  --table=discounts \
-  --validates_numericality=amount_cents:0:999_99,percentage_cents:0:100_00
-```
-
-```
-| Property               | Description                  |
-|-------------------------------------------------------|
-| avatar                 |                              |
-| belongs_to             |                              |
-| cover                  |                              |
-| fields_grid            |                              |
-| fields_i18n            |                              |
-| fields_presence        |                              |
-| fields                 |                              |
-| gender                 |                              |
-| multipart              |                              |
-| name_one               |                              |
-| name_other             |                              |
-| namespace_i18n         |                              |
-| namespace              |                              |
-| path                   |                              |
-| photos                 |                              |
-| show_route             |                              |
-| table                  |                              |
-| validates_numericality |                              |
-```
-
-### Ignoring Resources
-
-```
-| Property              | Value            | Description                                  |
-|-----------------------------------------------------------------------------------------|
-| `ignore_routes`       | `true`           | Ignores routes creation.                     |
-| `ignore_actions`      | `create,destroy` | Ignores the controller's actions.            |
-| `ignore_css`          | `form,index`     | Skips CSS files.                             |
-| `ignore_hbs`          | `gridy,search`   | Ignores the HBS templates.                   |
-| `ignore_i18n_locales` | `en,pt-BR`       | Ignores the I18n of the entire given locale. |
-| `ignore_i18n_actions` | `create,update`  | Ignores the I18n of the given actions.       |
-| `ignore_ignore_js`    | `form,index`     | Ignores the given JS files.                  |
-| `ignore_model`        | `true`           | Ignores the model.                           |
-| `ignore_views`        | `_form,gridy`    | Ignores the given views.                     |
-| `ignore_seeds`        | `true`           | Ignores the seeds.                           |
-| `ignore_controller`   | `true`           | Ignores the controller.                      |
-| `ignore_shared_icon`  | `true`           | Ignores the shared icon.                     |
+rails g templaty:crud
 ```
 
 ## References

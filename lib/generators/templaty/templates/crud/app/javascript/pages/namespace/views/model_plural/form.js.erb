@@ -1,0 +1,24 @@
+<%- params = Templaty::Params.new(options) -%>
+import modulejs from 'modulejs';
+
+<%- if params.raw.model.fields.any? { |field| field.name.end_with?('_cents') || field.name.end_with?('_percent') || field.name == 'percentage' } -%>
+import Masker from '@/modules/masker';
+
+<%- end -%>
+modulejs.define('<%= params.raw.namespace %>.<%= params.raw.model.name %>.form', () => {
+  'use strict';
+
+  class <%= params.model_class_plural.delete('::') %>Form {
+    create() {
+      <%- params.raw.model.fields.each do |field| -%>
+      <%- if field.name.end_with?('_cents') -%>
+      Masker.percentage(document.querySelector('[data-percentage]'));
+      <%- elsif field.name.end_with?('_percent') || field.name == 'percentage' -%>
+      Masker.money(document.querySelector('[data-money]'));
+      <%- end -%>
+      <%- end -%>
+    }
+  }
+
+  return <%= params.model_class_plural.delete('::') %>Form;
+});

@@ -1,0 +1,73 @@
+<%- params = Templaty::Params.new(options) -%>
+# frozen_string_literal: true
+
+require 'support/factory_bot'
+require 'support/shared_context/logged'
+
+RSpec.describe <%= params.controller_namespaced_class %>, '#update' do
+  it 'redirects when unlogged' do
+    patch :update, params: { id: 'any' }
+
+    expect(response.status).to be(302)
+  end
+
+  context 'when logged' do
+    include_context 'when_logged', permissions: [['<%= params.controller_path %>', :update]], with_plan: true
+
+    let!(:<%= params.raw.model.name %>) { create(:<%= params.raw.model.name %>, <%= params.belongs_to_fields_string %>) }
+
+    let!(:parameters) do
+      { <%= params.model_attributes_string %> }
+    end
+
+    context 'when fail' do
+      before { allow_any_instance_of(<%= params.raw.model.name.classify %>).to receive(:valid?).and_return(false) }
+
+      it 'assigns record' do
+        patch :update, params: { id: <%= params.raw.model.name %>, <%= params.raw.model.name %>: parameters }
+
+        expect(assigns(:<%= params.raw.model.name %>)).to eq(<%= params.raw.model.name %>)
+      end
+
+      it 'does not update the record' do
+        expect { patch :update, params: { id: <%= params.raw.model.name %>, <%= params.raw.model.name %>: parameters } }.not_to change(<%= params.raw.model.name %>, :<%= params.raw.model.fields.first.name %>)
+      end
+
+      it 're-renders page' do
+        patch :update, params: { id: <%= params.raw.model.name %>, <%= params.raw.model.name %>: parameters }
+
+        expect(response).to render_template(:edit)
+      end
+    end
+
+    context 'when success' do
+      it 'assigns record' do
+        patch :update, params: { id: <%= params.raw.model.name %>, <%= params.raw.model.name %>: parameters }
+
+        expect(assigns(:<%= params.raw.model.name %>)).to eq(<%= params.raw.model.name %>)
+      end
+
+      it 'updates the record' do
+        patch :update, params: { id: <%= params.raw.model.name %>, <%= params.raw.model.name %>: parameters }
+
+        <%= params.raw.model.name %>.reload
+
+        <%- params.raw.model.fields.each do |field| -%>
+        expect(<%= params.raw.model.name %>.<%= field.name %>).to eq('<%= field.name %>')
+        <%- end -%>
+      end
+
+      it 'redirects' do
+        patch :update, params: { id: <%= params.raw.model.name %>, <%= params.raw.model.name %>: parameters }
+
+        expect(response).to redirect_to(<%= params.raw.namespace %>_<%= params.raw.model.name %>_url)
+      end
+
+      it 'flashes' do
+        patch :update, params: { id: <%= params.raw.model.name %>, <%= params.raw.model.name %>: parameters }
+
+        expect(flash[:info]).to eq('<%= params.raw.model.i18n['pt-BR'].one %> <%= params.i18n_updated %>.')
+      end
+    end
+  end
+end

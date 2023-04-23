@@ -22,7 +22,7 @@ module Templaty
           raise('[Templaty] Options "default" cannot be blank when option "null" is false.')
         end
 
-        target = "db/migrate/#{timestamp(0)}_add_column_#{options[:column]}_to_#{options[:table]}.rb"
+        target = "db/migrate/#{timestamp(0)}_add_column_#{options[:column]}_to_#{params.raw.model.name}.rb"
 
         template('db/migrate/add_column.rb.erb', target)
 
@@ -37,7 +37,7 @@ module Templaty
       def backfill
         return unless options.key?(:default) || options[:null] != true # non declared null is `null: true`
 
-        target = "db/migrate/#{timestamp(1)}_backfill_#{options[:column]}_to_#{options[:table].pluralize}.rb"
+        target = "db/migrate/#{timestamp(1)}_backfill_#{options[:column]}_to_#{params.model_plural}.rb"
 
         template('db/migrate/backfill.rb.erb', target)
 
@@ -50,7 +50,7 @@ module Templaty
       def set_default
         return unless options.key?(:default)
 
-        target = "db/migrate/#{timestamp(2)}_set_column_#{options[:column]}_default_to_#{options[:table].pluralize}.rb"
+        target = "db/migrate/#{timestamp(2)}_set_column_#{options[:column]}_default_to_#{params.model_plural}.rb"
 
         template('db/migrate/set_default.rb.erb', target)
 
@@ -64,7 +64,7 @@ module Templaty
       def not_null
         return unless options[:null] == false
 
-        target = "db/migrate/#{timestamp(3)}_not_null_#{options[:column]}_to_#{options[:table].pluralize}.rb"
+        target = "db/migrate/#{timestamp(3)}_not_null_#{options[:column]}_to_#{params.model_plural}.rb"
 
         template('db/migrate/not_null.rb.erb', target)
 
@@ -81,7 +81,7 @@ module Templaty
       def validate_not_null
         return unless options[:null] == false
 
-        target = "db/migrate/#{timestamp(4)}_validate_not_null_#{options[:column]}_to_#{options[:table].pluralize}.rb"
+        target = "db/migrate/#{timestamp(4)}_validate_not_null_#{options[:column]}_to_#{params.model_plural}.rb"
 
         template('db/migrate/validate_not_null.rb.erb', target)
 

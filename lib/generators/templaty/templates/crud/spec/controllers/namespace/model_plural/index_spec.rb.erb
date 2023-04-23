@@ -1,0 +1,28 @@
+<%- params = Templaty::Params.new(options) -%>
+# frozen_string_literal: true
+
+require 'support/factory_bot'
+require 'support/shared_context/logged'
+
+RSpec.describe <%= params.controller_namespaced_class %>, '#index' do
+  it 'redirects when unlogged' do
+    get :index
+
+    expect(response.status).to be(302)
+  end
+
+  context 'when logged' do
+    include_context 'when_logged', permissions: [['<%= params.controller_path %>', :index]], with_plan: true
+
+    it 'assigns breadcrumbs' do
+      get :index
+
+      expect(assigns(:breadcrumbs)).to eq(
+        [
+          { href: <%= params.site? ? 'root_path' : 'system_path' %>, text: '<%= params.site? ? 'Home' : 'Painel' %>' },
+          { text: '<%= params.raw.model.i18n['pt-BR'].other %>' },
+        ]
+      )
+    end
+  end
+end

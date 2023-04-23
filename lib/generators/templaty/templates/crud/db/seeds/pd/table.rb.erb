@@ -1,9 +1,0 @@
-<%- data = Templaty::Helper.data_for(options) -%>
-<%- fields = Templaty::Helper.fields(options) -%>
-# frozen_string_literal: true
-
-puts "[seed] #{File.basename(__FILE__)}"
-
-@<%= options[:table] %> = {
-  one: create_<%= options[:table].singularize %>(<%= Templaty::Helper.data_as_hash_string(data, value_attribute: :raw) %>),
-}

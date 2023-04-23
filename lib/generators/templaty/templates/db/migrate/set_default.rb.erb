@@ -4,9 +4,9 @@
 class SetColumn<%= options[:column].classify %>WithDefault < ActiveRecord::Migration[<%= options[:rails_version] %>]
   def change
     <%- if options[:type] == 'string' -%>
-    change_column_default :<%= options[:table] %>, :<%= options[:column] %>, "<%= options[:default] %>"
+    change_column_default :<%= params.raw.model.name %>, :<%= options[:column] %>, "<%= options[:default] %>"
     <%- else -%>
-    change_column_default :<%= options[:table] %>, :<%= options[:column] %>, <%= options[:default] %>
+    change_column_default :<%= params.raw.model.name %>, :<%= options[:column] %>, <%= options[:default] %>
     <%- end -%>
   end
 end

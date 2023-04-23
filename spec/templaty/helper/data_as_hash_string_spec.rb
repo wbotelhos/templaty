@@ -13,14 +13,14 @@ RSpec.describe Templaty::Helper, '.data_as_hash_string' do
   it 'returns key and formatted values' do
     expected = "amount_cents: 'R$ 123,45', description: 'description', name: 'name', percentage_cents: '98,34 %'"
 
-    expect(described_class.data_as_hash_string(data)).to eq(expected)
+    expect(<%= params.model_class %>.data_as_hash_string(data)).to eq(expected)
   end
 
   context 'when change the value attribute' do
     it 'returns key and value for the given attribute' do
       expected = "amount_cents: 12345, description: 'description', name: 'name', percentage_cents: 9834"
 
-      expect(described_class.data_as_hash_string(data, value_attribute: :raw)).to eq(expected)
+      expect(<%= params.model_class %>.data_as_hash_string(data, value_attribute: :raw)).to eq(expected)
     end
   end
 end

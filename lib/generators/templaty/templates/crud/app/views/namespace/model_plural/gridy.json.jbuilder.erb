@@ -1,0 +1,10 @@
+<%- params = Templaty::Params.new(options) -%>
+# frozen_string_literal: true
+
+json.list do
+  json.array!(@items) do |<%= params.raw.model.name %>|
+<%= params.gridy_view %>
+  end
+end
+
+json.total(@total)

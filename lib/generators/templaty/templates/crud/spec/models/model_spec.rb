@@ -1,3 +1,4 @@
+<%- params = Templaty::Params.new(options) -%>
 # frozen_string_literal: true
 
 require 'support/factory_bot'
@@ -55,7 +56,7 @@ RSpec.describe Unit do
     let!(:phoneable) { build(:unit) }
   end
 
-  it_behaves_like 'avatar_attached', model_name: :unit
-  it_behaves_like 'cover_attached',  model_name: :unit
-  it_behaves_like 'photos_attached', model_name: :unit
+  it_behaves_like 'avatar_attached', params.raw.model.name: :unit
+  it_behaves_like 'cover_attached',  params.raw.model.name: :unit
+  it_behaves_like 'photos_attached', params.raw.model.name: :unit
 end

@@ -4,307 +4,227 @@ module Templaty
   class CrudGenerator < Rails::Generators::Base
     source_root File.expand_path('./templates', __dir__)
 
-    class_option :fields_grid, required: true, type: :string, desc: 'The grid style for each field'
-    class_option :fields_i18n, required: true, type: :string, desc: 'Fields I18n (Nome,Descrição)'
-    class_option :fields_presence, required: true, type: :string, desc: 'Mandatory fields (name,total_cents)'
-    class_option :fields, required: true, type: :string, desc: 'Resource fields (description,name)'
-    class_option :gender, required: true, type: :string, desc: 'Resource gender (criada|criado com sucesso)'
-    class_option :name_one, required: true, type: :string, desc: 'Resource name on singular (discount)'
-    class_option :name_other, required: true, type: :string, desc: 'Resource name on plural (discounts)'
-    class_option :namespace_i18n, required: true, type: :string, desc: 'Template name translation (Sistema)'
-    class_option :namespace, required: true, type: :string, desc: 'Template name (admin, system...)'
-    class_option :path, required: true, type: :string, desc: 'Route path name (desconto)'
-    class_option :table, required: true, type: :string, desc: 'Table name (discounts)'
-
-    class_option :avatar, required: false, type: :boolean, default: false, desc: 'Has avatar? (true|false)'
-    class_option :belongs_to, required: false, type: :string, desc: 'the belongs_to relation (user)'
-    class_option :cover, required: false, type: :boolean, default: false, desc: 'Has cover? (true|false)'
-    class_option :multipart, required: false, type: :boolean, default: false, desc: 'Multipart form? (true|false)'
-    class_option :photos, required: false, type: :boolean, default: false, desc: 'Has photos? (true|false)'
-    class_option :rails_version, required: false, type: :string, default: '6.1', desc: 'Rails version'
-    class_option :ignore_routes, required: false, type: :boolean, default: false, desc: 'Ignores the routes (true|false)'
-
-    class_option :show_route, required: false, type: :boolean, default: false, desc: 'Add show route? (true|false)'
-
-    class_option :ignore_actions,
-      required: false,
-      type: :string,
-      default: '',
-      desc: "Ignores the controller's actions. (create,destroy)"
-
-    class_option :ignore_controller,
-      required: false,
-      type: :string,
-      default: '',
-      desc: 'Ignores the controller. (true|false)'
-
-    class_option :ignore_css,
-      required: false,
-      type: :string,
-      default: '',
-      desc: 'Ignores CSS files. (form,index)'
-
-    class_option :ignore_hbs,
-      required: false,
-      type: :string,
-      default: '',
-      desc: 'Ignores the HBS templates. (gridy,search)'
-
-    class_option :ignore_i18n_actions,
-      required: false,
-      type: :string,
-      default: '',
-      desc: 'Ignores the I18n of the given actions. (create,update)'
-
-    class_option :ignore_i18n_locales,
-      required: false,
-      type: :string,
-      default: '',
-      desc: 'Ignores the I18n of the entire given locale. (en,pt-BR)'
-
-    class_option :ignore_js,
-      required: false,
-      type: :string,
-      default: '',
-      desc: 'Ignores the given JS files. (form,index)'
-
-    class_option :ignore_model,
-      required: false,
-      type: :boolean,
-      default: false,
-      desc: 'Ignores the model. (true|false)'
-
-    class_option :ignore_seeds,
-      required: false,
-      type: :boolean,
-      default: false,
-      desc: 'Ignores the seeds. (true|false)'
-
-    class_option :ignore_shared_icon,
-      required: false,
-      type: :boolean,
-      default: false,
-      desc: 'Ignores the shared icon. (true|false)'
-
-    class_option :ignore_specs,
-      required: false,
-      type: :boolean,
-      default: false,
-      desc: 'Ignores the given specs. (create,index)'
-
-    class_option :ignore_views,
-      required: false,
-      type: :string,
-      default: '',
-      desc: 'Ignores the given views. (_form,index)'
-
-    class_option :validates_numericality,
-      required: false,
-      type: :string,
-      default: nil,
-      desc: 'numericality validation (amount_cents:0:100_00)'
-
     def controller
-      return if options[:ignore_model]
+      params = Templaty::Params.new(options)
 
-      from = 'crud/app/controllers/namespace/table_controller.rb.erb'
-      to   = "app/controllers/#{options[:namespace]}/#{options[:table]}_controller.rb"
+      return if params.raw.controller.ignore?
 
-      template(from, to)
-    end
+      from = 'crud/app/controllers/namespace/controller.rb.erb'
+      to   = "app/controllers/#{params.raw.namespace}/#{params.model_plural}_controller.rb"
 
-    def css
-      ignore_css = Templaty::Helper.values(options, :ignore_css)
-
-      %w[form index].each do |name|
-        next if ignore_css.include?(name)
-
-        from = "crud/app/assets/stylesheets/namespace/views/table/#{name}.scss.erb"
-        to   = "app/assets/stylesheets/#{options[:namespace]}/views/#{options[:table]}/#{name}.scss"
-
-        template(from, to)
-      end
+      Templaty::Creator.call(self, __method__, from, to)
     end
 
     def hbs
-      ignore_hbs = Templaty::Helper.values(options, :ignore_hbs).map { |name| "table.#{name}.hbs.erb" }
+      params = Templaty::Params.new(options)
 
-      %w[table.gridy.hbs].each do |name|
-        next if ignore_hbs.include?(name)
+      return if params.raw.hbs.ignore?
 
-        path = "app/javascript/templates/namespace/#{name}"
-        from = "crud/#{path}.erb"
+      params.raw.hbs.actions.each do |action|
+        from = 'crud/app/javascript/templates/namespace/model_plural.action.hbs.erb'
+        to = "app/javascript/templates/#{params.raw.namespace}/#{params.model_plural}.#{action}.hbs"
 
-        to = path
-             .sub('model', options[:table].singularize)
-             .sub('namespace', options[:namespace])
-             .sub('table', options[:table])
+        Templaty::Logger.call(__method__, "#{from} -> #{to}")
 
-        template(from, to)
+        Templaty::Creator.call(self, __method__, from, to)
       end
-
-      `gulp hbs`
     end
 
     def i18n
-      ignore_i18n_actions = Templaty::Helper.values(options, :ignore_i18n_actions)
-      ignore_i18n_locales = Templaty::Helper.values(options, :ignore_i18n_locales)
+      params = Templaty::Params.new(options)
 
-      actions = %w[create destroy edit index new show update]
+      return if params.raw.i18n.ignore?
 
-      %w[en pt-BR ru].each do |locale|
-        next if ignore_i18n_locales.include?(locale)
+      params.raw.i18n.locales.each do |locale|
+        # Controller
 
-        actions.each do |name|
-          next if ignore_i18n_actions.include?(name) || (name == 'show' && options[:show_route] != true)
+        params.raw.controller.i18n.actions.each do |name|
+          from = "crud/config/locales/#{locale}/namespace/model_plural/#{name}.yml.erb"
+          to   = "config/locales/#{locale}/#{params.raw.namespace}/#{params.model_plural}/#{name}.yml"
 
-          from = "crud/config/locales/#{locale}/namespace/table/#{name}.yml.erb"
-          to   = "config/locales/#{locale}/#{options[:namespace]}/#{options[:table]}/#{name}.yml"
+          Templaty::Logger.call(__method__, "#{from} -> #{to}")
 
-          template(from, to)
+          Templaty::Creator.call(self, __method__, from, to)
         end
+
+        # Model
+
+        from = "crud/config/locales/#{locale}/model.yml.erb"
+        to = "config/locales/#{locale}/#{params.raw.model.name}.yml"
+
+        Templaty::Logger.call(__method__, "#{from} -> #{to}")
+
+        Templaty::Creator.call(self, __method__, from, to)
       end
-
-      name = options[:table].singularize
-
-      from = "crud/config/locales/#{locale}/#{name}.yml.erb"
-      to   = "config/locales/#{locale}/#{name}.yml"
-
-      template(from, to)
     end
 
     def js
-      ignore_js = Templaty::Helper.values(options, :ignore_js)
+      params = Templaty::Params.new(options)
 
-      %w[form index].each do |name|
-        next if ignore_js.include?(name)
+      return if params.raw.js.ignore?
 
-        path = "app/javascript/pages/namespace/views/table/#{name}.js"
-        from = "crud/#{path}.erb"
+      params.raw.js.actions.each do |action|
+        # JS
+        from = "crud/app/javascript/pages/namespace/views/model_plural/#{action}.js.erb"
+        to = "app/javascript/pages/#{params.raw.namespace}/views/#{params.model_plural}/#{action}.js"
 
-        to = path
-             .sub('model', options[:table].singularize)
-             .sub('namespace', options[:namespace])
-             .sub('table', options[:table])
+        Templaty::Logger.call(__method__, "#{from} -> #{to}")
 
-        template(from, to)
+        Templaty::Creator.call(self, __method__, from, to)
+
+        # Manifest
+
+        content = "import '@/pages/#{params.raw.namespace}/views/#{params.model_plural}/#{action}';"
+        path = "app/javascript/#{params.namespace_singular}.js"
+
+        Templaty::Appender.call(self, __method__, path, content)
       end
     end
 
     def model
-      return if options[:ignore_model]
+      params = Templaty::Params.new(options)
+
+      return if params.raw.model.ignore?
 
       from = 'crud/app/models/model.rb.erb'
-      to   = "app/models/#{options[:table].singularize}.rb"
+      to = "app/models/#{[params.raw.model.namespace, params.raw.model.name].compact.join('/')}.rb"
 
-      template(from, to)
+      Templaty::Logger.call(__method__, "#{from} -> #{to}")
+
+      Templaty::Creator.call(self, __method__, from, to)
     end
 
     def route_resource
-      return if options[:ignore_routes]
+      params = Templaty::Params.new(options)
 
-      content = <<~HEREDOC
-        resources :#{options[:table]},
-          concerns:   :gridyable,
-          #{options[:show_route] ? nil : 'except:     :show,'}
-          path:       :#{options[:path]},
-          path_names: { new: :novo, edit: :editar }
-      HEREDOC
+      return if params.raw.route.ignore?
+      return if Templaty::Skipper.skip?('config/routes.rb')
 
-      route content, namespace: options[:namespace]
-    end
+      # route %(
+      #   concern :gridyable do
+      #     get :gridy, defaults: { format: :json }, on: :collection
+      #   end
+      # )
 
-    def route_gridyable
-      return if options[:ignore_routes]
+      properties = [
+        ":#{params.model_plural}",
+        params.raw.controller.actions.include?('gridy') ? 'concerns: :gridyable' : nil,
+        "only: %i[#{params.raw.controller.actions.excluding('gridy').sort.join(' ')}]",
+        "path: :#{params.raw.route.path}",
+        %(path_names: { new: #{params.male? ? "'novo'" : 'nova'}, edit: 'editar' }),
+      ].compact
 
-      route %(
-        concern :gridyable do
-          get :gridy, defaults: { format: :json }, on: :collection
-        end
-      )
+      route(%(resources #{properties.join(",\n ")}), namespace: params.raw.namespace)
     end
 
     def seed
-      return if options[:ignore_seeds]
+      params = Templaty::Params.new(options)
 
-      from = 'crud/db/seeds/pd/table.rb.erb'
-      to   = "db/seeds/pd/#{options[:table]}.rb"
+      return if params.raw.seed.ignore?
 
-      template(from, to)
+      from = 'crud/db/seeds/pd/model_plural.rb.erb'
+      to   = "db/seeds/pd/#{params.model_plural}.rb"
+
+      Templaty::Logger.call(__method__, "#{from} -> #{to}")
+
+      Templaty::Creator.call(self, __method__, from, to)
     end
 
     def shared
-      return if options[:ignore_shared_icon]
+      params = Templaty::Params.new(options)
+
+      return if params.raw.shared.ignore?
+      return if params.raw.namespace != 'system'
+
+      to = "app/views/shared/icons/_#{params.raw.model.name}.html.erb"
+
+      return if Templaty::Skipper.skip?(to)
 
       from = 'crud/app/views/shared/_icon.html.erb.erb'
-      to   = "app/views/shared/icons/_#{options[:table].singularize}.html.erb"
 
-      template(from, to)
+      Templaty::Logger.call(__method__, "#{from} -> #{to}")
+
+      Templaty::Creator.call(self, __method__, from, to)
     end
 
     def spec
-      ignore_actions = Templaty::Helper.values(options, :ignore_actions)
+      params = Templaty::Params.new(options)
+
+      return if params.raw.spec.ignore?
 
       specs = []
 
-      unless ignore_actions.include?('create')
-        specs += %w[spec/controllers/namespace/table/create_spec.rb spec/features/namespace/table/create_spec.rb]
-      end
+      specs << 'spec/controllers/namespace/model_plural/new_spec.rb' if params.action?('new')
+      specs << 'spec/controllers/namespace/model_plural/edit_spec.rb' if params.action?('edit')
 
-      unless ignore_actions.include?('destroy')
-        specs += %w[spec/controllers/namespace/table/destroy_spec.rb spec/features/namespace/table/destroy_spec.rb]
-      end
-
-      specs << 'spec/controllers/namespace/table/edit_spec.rb' unless ignore_actions.include?('edit')
-
-      unless ignore_actions.include?('index')
+      if params.action?('create')
         specs += %w[
-          spec/controllers/namespace/table/gridy/json_spec.rb
-          spec/controllers/namespace/table/gridy/unlogged_spec.rb
-          spec/controllers/namespace/table/index_spec.rb
-          spec/features/namespace/table/gridy/initial_spec.rb
-          spec/features/namespace/table/gridy/search_spec.rb
-          spec/features/namespace/table/gridy/sort_spec.rb
-          spec/models/model/list_spec.rb
+          spec/controllers/namespace/model_plural/create_spec.rb
+          spec/features/namespace/model_plural/create_spec.rb
         ]
       end
 
-      specs << 'spec/controllers/namespace/table/new_spec.rb' unless ignore_actions.include?('new')
+      if params.action?('destroy')
+        specs += %w[
+          spec/controllers/namespace/model_plural/destroy_spec.rb
+          spec/features/namespace/model_plural/destroy_spec.rb
+        ]
+      end
 
-      unless ignore_actions.include?('update')
-        specs += %w[spec/controllers/namespace/table/update_spec.rb spec/features/namespace/table/update_spec.rb]
+      if params.action?('index')
+        specs += %w[
+          spec/controllers/namespace/model_plural/gridy/json_spec.rb
+          spec/controllers/namespace/model_plural/gridy/unlogged_spec.rb
+          spec/controllers/namespace/model_plural/index_spec.rb
+          spec/features/namespace/model_plural/gridy/initial_spec.rb
+          spec/features/namespace/model_plural/gridy/search_spec.rb
+          spec/features/namespace/model_plural/gridy/sort_spec.rb
+        ]
+
+        specs << 'spec/models/model/list_spec.rb' if params.searchable?
+      end
+
+      if params.action?('update')
+        specs += %w[
+          spec/controllers/namespace/model_plural/update_spec.rb
+        ]
       end
 
       specs.sort.each do |path|
         from = "crud/#{path}.erb"
 
         to = path
-             .sub('model', options[:table].singularize)
-             .sub('namespace', options[:namespace])
-             .sub('table', options[:table])
+             .sub('namespace', params.raw.namespace)
+             .sub('model_plural', params.model_plural)
 
-        template(from, to)
+        Templaty::Logger.call(__method__, "#{from} -> #{to}")
+
+        Templaty::Creator.call(self, __method__, from, to)
       end
     end
 
     def views
-      ignore_views = Templaty::Helper.values(options, :ignore_views)
+      params = Templaty::Params.new(options)
 
-      %w[
-        _form.html.erb
-        _submenu.html.erb
-        _title.html.erb
-        edit.html.erb
-        gridy.json.jbuilder
-        index.html.erb
-        new.html.erb
-      ].each do |name|
-        next if ignore_views.include?(name.split('.').first)
+      return if params.raw.view.ignore?
 
-        from = "crud/app/views/namespace/table/#{name}.erb"
-        to = "app/views/#{options[:namespace]}/#{options[:table]}/#{name}"
+      pages = []
 
-        template(from, to)
+      pages << '_form.html.erb' if params.action?('new') || params.action?('edit')
+      pages << 'edit.html.erb' if params.action?('edit')
+      pages << 'gridy.json.jbuilder' if params.action?('gridy')
+      pages << 'index.html.erb' if params.action?('index')
+      pages << 'new.html.erb' if params.action?('new')
+
+      pages += %w[_submenu.html.erb _title.html.erb] if params.system?
+
+      pages.each do |name|
+        from = "crud/app/views/namespace/model_plural/#{name}.erb"
+        to = "app/views/#{params.raw.namespace}/#{params.model_plural}/#{name}"
+
+        Templaty::Logger.call(__method__, "#{from} -> #{to}")
+
+        Templaty::Creator.call(self, __method__, from, to)
       end
     end
   end

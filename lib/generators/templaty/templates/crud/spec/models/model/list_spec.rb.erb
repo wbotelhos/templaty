@@ -1,16 +1,14 @@
-<%- fields = Templaty::Helper.fields(options) -%>
-<%- datas = fields.sort.reduce({}) { |acc, field| acc.tap { |data| data[field] = Templaty::Helper.data_for(options) } } -%>
-<%- model_name = options[:table].singularize -%>
+<%- params = Templaty::Params.new(options) -%>
 # frozen_string_literal: true
 
 require 'support/factory_bot'
 
-RSpec.describe <%= options[:table].classify%>, '.list' do
-  <%- fields.sort.each.with_index do |field, index| -%>
-  let!(:<%= model_name %>_<%= index + 1 %>) { create(:<%= model_name %>, <%= Templaty::Helper.data_as_hash_string(datas[field], value_attribute: :raw) %>) }
+RSpec.describe <%= params.model_class %>, '.list' do
+  <%- params.raw.model.fields.each.with_index do |field, index| -%>
+  let!(:record_<%= index + 1 %>) { create(:<%= params.raw.model.name %>, <%= params.raw.model.fields.map { |item| "#{item.name}: #{item.name == field.name ? "'#{field.name}'" : "'miss'"}" }.join(', ') %>) }
   <%- end -%>
 
-  <%- fields.sort.each.with_index do |field, index| -%>
-  it { expect(described_class.list(<%= Templaty::Helper.data_wrap(datas[field][field][:raw]) %>).ids).to eq([<%= model_name %>_<%= index + 1 %>.id]) }
+  <%- params.raw.model.fields.each.with_index do |field, index| -%>
+  it { expect(<%= params.model_class %>.list('<%= field.name[0..2] %>').ids).to match_array([record_<%= index + 1 %>.id]) }
   <%- end -%>
 end

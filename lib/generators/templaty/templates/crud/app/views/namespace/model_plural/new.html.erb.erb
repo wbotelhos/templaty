@@ -1,0 +1,6 @@
+<%- params = Templaty::Params.new(options) -%>
+<%%= 'breadcrumbs' %>
+
+<%%= form_with(model: <%= params.form_model %><%= params.raw.model.multipart ? "html: { enctype: 'multipart/form-data' }" : nil %>) do |f| %>
+  <%%= render('form', f: f) %>
+<%% end %>

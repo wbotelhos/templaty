@@ -1,0 +1,69 @@
+<%- params = Templaty::Params.new(options) -%>
+# frozen_string_literal: true
+
+require 'support/factory_bot'
+require 'support/shared_context/logged'
+
+RSpec.describe <%= params.controller_namespaced_class %>, '#create' do
+  it 'redirects when unlogged' do
+    post :create
+
+    expect(response.status).to be(302)
+  end
+
+  context 'when logged' do
+    include_context 'when_logged', permissions: [['<%= params.controller_path %>', :create]], with_plan: true
+
+    let!(:parameters) { { <%= params.model_attributes_string %> } }
+
+    context 'when fail' do
+      before { allow_any_instance_of(<%= params.raw.model.name.classify %>).to receive(:valid?).and_return(false) }
+
+      it 're-renders' do
+        post :create, params: { <%= params.raw.model.name %>: parameters }
+
+        expect(response).to render_template(:new)
+      end
+
+      it 'does not destroy the record' do
+        expect { post :create, params: { <%= params.raw.model.name %>: parameters } }.not_to change(<%= params.model_class %>, :count)
+      end
+
+      it 'assigns breadcrumbs' do
+        post :create, params: { <%= params.raw.model.name %>: parameters }
+
+        expect(assigns(:breadcrumbs)).to eq(
+          [
+            { href: <%= params.site? ? 'root_path' : 'system_path' %>, text: '<%= params.site? ? 'Home' : 'Painel' %>' },
+            { href: <%= params.model_plural %>_path, text: '<%= params.raw.model.i18n['pt-BR'].other %>' },
+            { text: '<%= params.i18n_new.capitalize %>' },
+          ]
+        )
+      end
+    end
+
+    context 'when success' do
+      it 'redirects' do
+        post :create, params: { <%= params.raw.model.name %>: parameters }
+
+        expect(response).to redirect_to(<%= params.raw.namespace %>_<%= params.raw.model.name %>_url)
+      end
+
+      it 'flashes' do
+        post :create, params: { <%= params.raw.model.name %>: parameters }
+
+        expect(flash[:info]).to eq('<%= params.raw.model.i18n['pt-BR'].one %> <%= params.i18n_created %>.')
+      end
+
+      it 'creates the record' do
+        post :create, params: { <%= params.raw.model.name %>: parameters }
+
+        <%= params.raw.model.name %> = <%= params.model_class %>.last
+
+        <%- params.raw.model.fields.each do |field| -%>
+        expect(<%= params.raw.model.name %>.<%= field.name %>).to eq(nil)
+        <%- end -%>
+      end
+    end
+  end
+end

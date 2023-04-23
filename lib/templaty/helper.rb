@@ -6,12 +6,6 @@ module Templaty
   module Helper
     module_function
 
-    def belongs_to(options)
-      return [] if options[:belongs_to].nil?
-
-      options[:belongs_to].split(',')
-    end
-
     def data(field)
       amount = Faker::Number.number(digits: 5)
       description = Faker::Lorem.paragraphs.join("\r\n\n")
@@ -31,7 +25,7 @@ module Templaty
     end
 
     def data_for(options)
-      fields(options)
+      []
         .sort
         .reduce({}) { |acc, field| acc.tap { |data| data[field] = Templaty::Helper.data(field) } }
         .tap do |_field, item|
@@ -55,15 +49,11 @@ module Templaty
     end
 
     def data_i18n(options)
-      fields(options).zip(fields_i18n(options)).to_h
+      [].zip(fields_i18n(options)).to_h
     end
 
     def data_wrap(value)
       value.is_a?(String) ? "'#{value}'" : value
-    end
-
-    def fields(options)
-      options[:fields].split(',')
     end
 
     def fields_i18n(options)
@@ -95,43 +85,12 @@ module Templaty
       end
     end
 
-    def i18n_created(options)
-      options[:gender] == 'male' ? 'criado' : 'criada'
-    end
-
-    def i18n_new(options)
-      options[:gender] == 'male' ? 'novo' : 'nova'
-    end
-
-    def i18n_removed(options)
-      options[:gender] == 'male' ? 'removido' : 'removida'
-    end
-
-    def i18n_this(options)
-      options[:gender] == 'male' ? 'este' : 'esta'
-    end
-
-    def i18n_updated(options)
-      options[:gender] == 'male' ? 'atualizado' : 'atualizada'
-    end
-
-    def rspec_matcher(value)
-      return "be(#{value.inspect})" if value.nil? || value.is_a?(Numeric)
-      return "eq('')" if value == ''
-
-      "eq('#{value}')"
-    end
-
     def validates_numericality(options)
       options[:validates_numericality]&.split(',')&.reduce({}) do |acc, item|
         field, min, max = item.split(':')
 
         acc.tap { |data| data[field] = { min: min, max: max } }
       end
-    end
-
-    def values(options, option)
-      options[option.to_sym]&.split(',') || []
     end
   end
 end

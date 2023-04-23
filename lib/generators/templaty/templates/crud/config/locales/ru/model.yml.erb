@@ -1,15 +1,16 @@
 <%# coding: UTF-8 -%>
-<%- fields = Templaty::Helper.fields(options).sort -%>
+<%- params = Templaty::Params.new(options) -%>
 ru:
   activerecord:
     attributes:
-      <%= options[:table].singularize %>:
-      <%- fields.sort.each do |field| -%>
-        <%= field %>: <%= field.sub('_cents', '').split('_').map(&:capitalize).join(' ') %>
+      <%= params.raw.model.name %>:
+      <%- params.raw.model.fields.each do |field| -%>
+        <%= field.name %>: <%= field.i18n.ru %>
       <%- end -%>
 
-  <%= options[:table].singularize %>:
+  <%= params.raw.model.name %>:
     destroy:
       confirm: "Вы действительно хотите удалить элемент %{name}?"
 
-    other: Кампании
+    one: <%= params.raw.model.i18n.ru.one %>
+    other: <%= params.raw.model.i18n.ru.other %>

@@ -21,6 +21,6 @@ RSpec.describe Templaty::Helper, '.data_for' do
       'percentage_cents' => { raw: 98_34, formatted: '98,34 %' },
     }
 
-    expect(described_class.data_for(fields:)).to eq(expected)
+    expect(<%= params.model_class %>.data_for(fields:)).to eq(expected)
   end
 end

@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-class ValidateNotNull<%= options[:column].classify %>To<%= options[:table].classify.pluralize %> < ActiveRecord::Migration[<%= options[:rails_version] %>]
+class ValidateNotNull<%= options[:column].classify %>To<%= params.raw.model.name.classify.pluralize %> < ActiveRecord::Migration[<%= options[:rails_version] %>]
   def change
-    validate_check_constraint :<%= options[:table] %>, name: '<%= options[:table] %>_<%= options[:column] %>_null'
+    validate_check_constraint :<%= params.raw.model.name %>, name: '<%= params.raw.model.name %>_<%= options[:column] %>_null'
 
     # in Postgres 12+, you can then safely set NOT NULL on the column
-    change_column_null :<%= options[:table] %>, :<%= options[:column] %>, false
+    change_column_null :<%= params.raw.model.name %>, :<%= options[:column] %>, false
 
-    remove_check_constraint :<%= options[:table] %>, name: '<%= options[:table] %>_<%= options[:column] %>_null'
+    remove_check_constraint :<%= params.raw.model.name %>, name: '<%= params.raw.model.name %>_<%= options[:column] %>_null'
   end
 end

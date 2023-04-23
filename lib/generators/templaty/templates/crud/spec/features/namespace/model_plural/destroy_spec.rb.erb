@@ -1,0 +1,27 @@
+<%- params = Templaty::Params.new(options) -%>
+# frozen_string_literal: true
+
+require 'support/capybara_box'
+require 'support/factory_bot'
+
+RSpec.describe <%= params.model_class %>, '#destroy', :js do
+  let!(:profile) { create_profile(with_plan: true) }
+  let!(:<%= params.raw.model.name %>) { create(:<%= params.raw.model.name %>, unit: profile.unit) }
+
+  it 'destroyes record' do
+    login profile.user,
+      permissions: [
+        ['<%= params.controller_path %>', :destroy],
+        ['<%= params.controller_path %>', :gridy],
+        ['<%= params.controller_path %>', :index],
+        ['<%= params.controller_path %>', :update],
+      ],
+      redirect_to: edit_<%= params.raw.namespace %>_<%= params.raw.model.name %>_path(<%= params.raw.model.name %>)
+
+    page.accept_confirm { click_button('Apagar') }
+
+    expect(page).to have_text('<%= params.raw.model.i18n['pt-BR'].one %> <%= params.i18n_destroyed %>.')
+
+    expect(<%= params.model_class %>.count).to be(0)
+  end
+end

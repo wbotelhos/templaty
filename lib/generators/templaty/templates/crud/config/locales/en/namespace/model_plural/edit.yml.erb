@@ -1,0 +1,6 @@
+<%- params = Templaty::Params.new(options) -%>
+en:
+  <%= params.raw.namespace %>:
+    <%= params.model_plural %>:
+      edit:
+        not_found: <%= params.raw.model.i18n.en.one %> not found.

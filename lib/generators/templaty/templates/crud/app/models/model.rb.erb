@@ -1,41 +1,54 @@
-<%- belongs_to = Templaty::Helper.belongs_to(options).sort -%>
-<%- fields = Templaty::Helper.fields(options).sort -%>
-<%- validates_numericality = Templaty::Helper.validates_numericality(options) -%>
+<%- params = Templaty::Params.new(options) -%>
 # frozen_string_literal: true
 
-class <%= options[:table].classify %> < ApplicationRecord
+<%- if params.model_namespace_class -%>
+module <%= params.model_namespace_class %>
+<%- end -%>
+class <%= params.model_unamespaced_class %> < ApplicationRecord
+  <%- if params.searchable? -%>
   include PgSearch::Model
+  <%- end -%>
 
   idy
 
-  <%- fields.each do |field| -%>
-  <%- if field == 'description' -%>
-  normalizy :<%= field %>, with: :strip
-  <%- elsif field.end_with?('_cents') || field == 'percentage' -%>
-  normalizy :<%= field %>, with: { money: { type: :cents } }
+  <%- params.raw.model.fields.each do |field| -%>
+  <%- if field.type == 'textarea' -%>
+  normalizy :<%= field.name %>, with: :strip
+  <%- elsif field.name.end_with?('_cents') -%>
+  normalizy :<%= field.name %>, with: { money: { type: :cents } }
+  <%- elsif field.name.end_with?('_percent') || field.name == 'percentage' -%>
+  normalizy :<%= field.name %>, with: { money: { type: :cents } }
   <%- else -%>
-  normalizy :<%= field %>, with: :squish
+  normalizy :<%= field.name %>, with: :squish
   <%- end -%>
   <%- end -%>
 
+  <%- if params.searchable? -%>
   pg_search_scope :list,
-    against:  %i[<%= fields.join(' ') %>],
+    against: %i[<%= params.searchable_fields_spaced %>],
     ignoring: :accents,
-    using:    { tsearch: { prefix: true } }
+    using: { tsearch: { prefix: true } }
 
-  <%- belongs_to&.each do |field| -%>
-  belongs_to :<%= field %>
+  <%- end -%>
+  <%- params.belongs_to_fields.each do |field| -%>
+  belongs_to :<%= field.name %><%= field.counter_cache? ? ', counter_cache: true' : nil -%><%= field.optional? ? ', optional: true' : nil -%>
   <%- end -%>
 
-  <%- fields.each do |field| -%>
-  validates :<%= field %>, presence: true
+  <%- params.presence_fields.each do |field| -%>
+  validates :<%= field.name %>, presence: true
   <%- end -%>
 
-  <%- validates_numericality&.each do |field, values| -%>
-  validates :<%= field %>, numericality: {
-    greater_than_or_equal_to: <%= values[:min] %>,
-    less_than_or_equal_to: <%= values[:max] %>,
+  <%- params.unique_fields.each do |field| -%>
+  validates :<%= field.name %>, uniqueness: { case_sensitive: false<%= !field.unique.scope.empty? ? ", scope: :#{field.unique.scope}" : nil -%> }
+  <%- end -%>
+
+  <%- params.numeric_fields.each do |field| -%>
+  validates :<%= field.name %>, numericality: {
+    greater_than_or_equal_to: <%= field.min %>,
+    less_than_or_equal_to: <%= field.max %>,
   }
-
   <%- end -%>
 end
+<%- if params.model_namespace_class -%>
+end
+<%- end -%>

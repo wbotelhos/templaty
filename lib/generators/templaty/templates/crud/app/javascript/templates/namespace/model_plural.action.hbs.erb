@@ -1,0 +1,34 @@
+<%- params = Templaty::Params.new(options) -%>
+{{#each list}}
+  <tr class="gridy__row">
+    <%- params.raw.model.fields.each do |field| -%>
+    <td class="gridy__column">
+      <div class="gridy__column__text">{{<%= field.name %>}}</div>
+    </td>
+
+    <%- end -%>
+    <td class="gridy__column gridy__column--actions">
+      <div data-menu-actions class="menu-actions">
+        <div data-menu-actions-button class="menu-actions__button">
+          <img alt="" height="20" src="{{more_image}}" width="20">
+        </div>
+
+        <div class="menu-actions__body">
+          <ul role="menu" class="menu-actions__list">
+            <%- if params.action?('edit') -%>
+            <li class="menu-actions__item">
+              <a href="{{edit_path}}" title="{{i18n_capitalized 'edit'}}">{{i18n_capitalized 'edit'}}</a>
+            </li>
+
+            <%- end -%>
+            <%- if params.action?('show') -%>
+            <li class="menu-actions__item">
+              <a href="{{show_path}}" title="{{i18n_capitalized 'show'}}">{{i18n_capitalized 'show'}}</a>
+            </li>
+            <%- end -%>
+          </ul>
+        </div>
+      </div>
+    </td>
+  </tr>
+{{/each}}

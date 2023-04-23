@@ -1,0 +1,13 @@
+<%- params = Templaty::Params.new(options) -%>
+<%- if params.system? -%>
+<%%= render 'submenu' %>
+<%%= render 'title' %>
+
+<%- end -%>
+<%- if params.action?('new') -%>
+<%%= link_to(I18n.t('.new'), <%= params.new_path %>, class: 'button-new') if authorizy?('<%= params.controller_path %>', :new) %>
+<%- end -%>
+
+<%%= render('shared/system/gridy') %>
+
+<input data-param name="gridy.url" type="hidden" value="<%%= params.gridy_path %>">

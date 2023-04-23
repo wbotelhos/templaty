@@ -1,0 +1,127 @@
+<%- params = Templaty::Params.new(options) -%>
+# frozen_string_literal: true
+
+module <%= params.namespace_class %>
+  class <%= params.controller_unamespaced_class %> < <%= params.namespace_class %>::BaseController
+    before_action :authorizy<%= params.authorization_except %>
+    before_action :assign_record, only: %i[<%= params.actions_spaced %>]
+
+    <%- if params.action?('create') -%>
+    def create
+      @<%= params.raw.model.name %> = <%= params.model_class%>.new(create_params)
+      @<%= params.raw.model.name %>.unit_id = session[:current_unit_id]
+
+      if @<%= params.raw.model.name %>.save
+        redirect_to(<%= params.index_path(instance: true) %>, info: t('.success'))
+      else
+        assign_breadcrumbs_new
+
+        render(:new)
+      end
+    end
+
+    <%- end -%>
+    <%- if params.action?('destroy') -%>
+    def destroy
+      if @<%= params.raw.model.name %>.destroy
+        redirect_to(<%= params.index_path(instance: true) %>, info: t('.success'))
+      else
+        assign_breadcrumbs_edit
+
+        render(:edit)
+      end
+    end
+
+    <%- end -%>
+    <%- if params.action?('edit') -%>
+    def edit
+      assign_breadcrumbs_edit
+    end
+
+    <%- end -%>
+    <%- if params.action?('gridy') -%>
+    def gridy
+      lister = Lister
+               .new(self, params)
+               .init
+               .select(%i[id <%= params.model_fields_spaced %>])
+               .where(unit_id: session[:current_unit_id])
+
+      @items = lister.items
+      @total = lister.total
+    end
+
+    <%- end -%>
+    <%- if params.action?('index') -%>
+    def index
+      @breadcrumbs = [
+        { href: <%= params.raw.namespace == 'site' ? 'root_path' : 'system_path' %>, text: I18n.t(:home) },
+        { text: I18n.t('<%= params.raw.model.name %>.other') },
+      ]
+    end
+
+    <%- end -%>
+    <%- if params.action?('new') -%>
+    def new
+      @<%= params.raw.model.name %> = <%= params.model_class %>.new
+
+      assign_breadcrumbs_new
+    end
+
+    <%- end -%>
+    <%- if params.action?('update') -%>
+    def update
+      if @<%= params.raw.model.name %>.update(update_params)
+        redirect_to(<%= params.index_path(instance: true) %>, info: t('.success'))
+      else
+        assign_breadcrumbs_edit
+
+        render(:edit)
+      end
+    end
+
+    <%- end -%>
+    private
+
+    <%- if params.action?('destroy') || params.action?('edit') || params.action?('update') -%>
+    def assign_breadcrumbs_edit
+      @breadcrumbs = [
+        { href: <%= params.raw.namespace == 'site' ? 'root_path' : 'system_path' %>, text: I18n.t(:home) },
+        { href: <%= params.model_plural %>_path, text: I18n.t('<%= params.raw.model.name %>.other') },
+        { href: <%= params.model_plural %>_path(@<%= params.raw.model.name %>), text: <%= params.raw.model.name %>.<%= params.raw.sluggable ? 'slug' : 'idy' %> },
+        { text: I18n.t(:edit) },
+      ]
+    end
+
+    <%- end -%>
+    <%- if params.action?('new') || params.action?('create') -%>
+    def assign_breadcrumbs_new
+      @breadcrumbs = [
+        { href: <%= params.raw.namespace == 'site' ? 'root_path' : 'system_path' %>, text: I18n.t(:home) },
+        { href: <%= params.model_plural %>_path, text: I18n.t('<%= params.raw.model.name %>.other') },
+        { text: I18n.t(:new) },
+      ]
+    end
+
+    <%- end -%>
+    <%- if params.raw.controller.actions.any? -%>
+    def assign_record
+      @<%= params.raw.model.name %> = <%= params.model_class%>.where(unit_id: session[:current_unit_id]).findy(params[:id])
+
+      redirect_to(<%= params.index_path(instance: true) %>, info: t('.not_found')) if @<%= params.raw.model.name %>.nil?
+    end
+
+    <%- end -%>
+    <%- if params.action?('create') -%>
+    def create_params
+      params.require(:<%= params.raw.model.name %>).permit(<%= params.model_fields_symbolized %>)
+    end
+
+    <%- end -%>
+    <%- if params.action?('update') -%>
+    def update_params
+      params.require(:<%= params.raw.model.name %>).permit(<%= params.model_fields_symbolized %>)
+    end
+    <%- end -%>
+  end
+end
