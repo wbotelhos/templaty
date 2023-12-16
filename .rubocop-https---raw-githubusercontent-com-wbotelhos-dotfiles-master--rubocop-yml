@@ -1,9 +1,5 @@
 require:
-  - rubocop-graphql
   - rubocop-performance
-  - rubocop-rails
-  - rubocop-rake
-  - rubocop-rspec
 
 AllCops:
   Exclude:
@@ -37,9 +33,6 @@ AllCops:
     - vendor/**/*
 
   NewCops: enable
-
-Capybara/SpecificFinders:
-  Enabled: false
 
 Layout/ArgumentAlignment:
   EnforcedStyle: with_fixed_indentation
@@ -78,54 +71,11 @@ Naming/MethodParameterName:
 Naming/VariableNumber:
   EnforcedStyle: snake_case
 
-Rails:
-  Enabled: true
-
-Rails/ActionOrder:
-  ExpectedOrder:
-    - create
-    - destroy
-    - edit
-    - index
-    - new
-    - show
-    - update
-
-Rails/HttpStatus:
-  EnforcedStyle: numeric
-
-RSpec/AnyInstance:
-  Enabled: false
-
-RSpec/BeNil:
-  Enabled: false
-
-RSpec/DescribedClass:
+Naming/BlockForwarding:
   EnforcedStyle: explicit
-
-RSpec/ExampleLength:
-  Enabled: false
-
-RSpec/FilePath:
-  Enabled: false
-
-RSpec/MatchArray:
-  Enabled: false
-
-RSpec/MultipleExpectations:
-  Enabled: false
-
-RSpec/MultipleMemoizedHelpers:
-  Max: 15
 
 Style/NegatedIf:
   EnforcedStyle: postfix
-
-RSpec/NestedGroups:
-  Max: 10
-
-RSpec/Rails/HaveHttpStatus:
-  Enabled: false
 
 Style/Documentation:
   Enabled: false
